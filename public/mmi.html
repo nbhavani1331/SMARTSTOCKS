@@ -1,0 +1,90 @@
+<!---<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Market Mood Index</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <h1>📈 Weekly Market Mood Index</h1>
+
+  <div class="mmi-bar-graph">
+    <div class="bar" style="height: 30%;" title="Extreme Fear">Mon<br><span>😨</span></div>
+    <div class="bar" style="height: 45%;" title="Fear">Tue<br><span>😟</span></div>
+    <div class="bar today" style="height: 60%;" title="Neutral (Today)">Wed<br><span>😐</span></div>
+    <div class="bar" style="height: 75%;" title="Greed">Thu<br><span>😊</span></div>
+    <div class="bar" style="height: 90%;" title="Extreme Greed">Fri<br><span>😎</span></div>
+  </div>
+
+  <p class="mmi-label">Today’s Sentiment: <strong>Neutral Zone</strong></p>
+  <button onclick="window.location.href='index.html'">← Back to Dashboard</button>
+
+</body>
+</html>
+--->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Market Mood Index</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <h1>📈 Weekly Market Mood Index</h1>
+
+  <div class="mmi-bar-graph" id="mmi-graph">
+    <!-- Bars will be injected by JS -->
+  </div>
+
+  <p class="mmi-label">Today’s Sentiment: <strong>Detecting...</strong></p>
+
+  <button onclick="window.location.href='index.html'">← Back to Dashboard</button>
+
+  <script>
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const moods = [
+      { label: "Extreme Fear", height: 30, emoji: "😨" },
+      { label: "Fear", height: 45, emoji: "😟" },
+      { label: "Neutral", height: 60, emoji: "😐" },
+      { label: "Greed", height: 75, emoji: "😊" },
+      { label: "Extreme Greed", height: 90, emoji: "😎" }
+    ];
+
+    const todayIndex = new Date().getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+    const graph = document.getElementById("mmi-graph");
+
+    for (let i = 1; i <= 5; i++) { // Loop Mon to Fri
+      const mood = moods[i - 1];
+      const day = days[i];
+
+      const bar = document.createElement("div");
+      bar.className = "bar";
+      bar.style.height = `${mood.height}%`;
+      bar.title = `${mood.label} - ${day}`;
+      bar.innerHTML = `${day}<br><span>${mood.emoji}</span>`;
+
+      if (todayIndex === i) {
+        bar.classList.add("today");
+        document.querySelector(".mmi-label strong").innerText = `${mood.label} Zone`;
+      }
+
+      graph.appendChild(bar);
+    }
+
+    // If today is Sat/Sun
+    if (todayIndex === 0 || todayIndex === 6) {
+      document.querySelector(".mmi-label strong").innerText = "Market Closed (Weekend)";
+    }
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+

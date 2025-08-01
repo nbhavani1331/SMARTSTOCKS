@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Stocks</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <h1>📊 My Stocks</h1>
+  <div class="table-container">
+    <table id="stocks-table">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Username</th>
+          <th>Stock Symbol</th>
+          <th>Company</th>
+          <th>Type</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Date</th>
+          <th>Sector</th>
+        </tr>
+      </thead>
+      <tbody id="stocks-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch('http://localhost:3000/stocks')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('stocks-body');
+        data.forEach(s => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${s.user_id}</td>
+            <td>${s.username}</td>
+            <td>${s.stock_symbol}</td>
+            <td>${s.stock_company_name}</td>
+            <td>${s.transaction_type}</td>
+            <td>${s.quantity}</td>
+            <td>${s.price}</td>
+            <td>${s.transaction_date}</td>
+            <td>${s.sector || '-'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+  </script>
+
+</body>
+</html>
+
+
+

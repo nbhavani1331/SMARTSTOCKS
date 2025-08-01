@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SMART STOCK</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div id="marquee">
+    <marquee behavior="scroll" direction="left">
+      📈 Welcome to SMARTSTOCK – Where Markets Meet Simplicity!
+      💹 Add, View & Track Your Stocks Like a Pro!
+      📊 Live Market Mood Index Now Integrated!
+      💼 Invest Smart. Stay Ahead. Monitor Everything.
+      🔔 Stay Alert. Stay Informed. Stay Bullish.
+      📈 Discover Trends, Track Trades & Own the Market.
+    </marquee>
+    
+  </div>
+
+  <h1>📋 SMART STOCK</h1>
+
+  <!-- Market Mood Summary -->
+  <div class="market-summary" onclick="window.location.href='mmi.html'">
+    <strong>📈 Market Mood: GREED ZONE</strong><br/><br/>
+    IN ... ZONE →
+    <span>MON</span>
+    <span>TUE</span>
+    <span>WED</span>
+    <span>THU</span>
+    <span>FRI</span>
+    <span>SAT</span>
+    <span class="today">TODAY</span>
+  </div>
+
+  <div class="main-sections">
+    <!-- Add New Stock Form -->
+    <div class="card fetch-add-card">
+      <h2>📊 Add New Stock</h2>
+      <form id="stock-form">
+        <input placeholder="User ID" id="user_id" required />
+        <input placeholder="Username" id="username" required />
+        <input placeholder="Stock Symbol" id="stock_symbol" required />
+        <input placeholder="Company Name" id="stock_company_name" required />
+        <select id="transaction_type" required>
+          <option value="">Select Type</option>
+          <option value="BUY">BUY</option>
+          <option value="SELL">SELL</option>
+        </select>
+        <input type="number" placeholder="Quantity" id="quantity" required />
+        <input type="number" step="0.01" placeholder="Price" id="price" required />
+        <input type="date" id="transaction_date" required />
+        <input placeholder="Sector (Optional)" id="sector" />
+        <button type="submit">Add Stock</button>
+      </form>
+    </div>
+
+    <!-- View Stocks Button -->
+    <div class="card fetch-only-card">
+      <h2>📁 View My Stocks</h2>
+      <p>Click below to view all your stock records in table format.</p>
+      <button class="view-btn" onclick="window.location.href='stocks.html'">🔍 Fetch Stock Data</button>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000/stocks';
+    document.getElementById('stock-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const stock = {
+        user_id: document.getElementById('user_id').value,
+        username: document.getElementById('username').value,
+        stock_symbol: document.getElementById('stock_symbol').value,
+        stock_company_name: document.getElementById('stock_company_name').value,
+        transaction_type: document.getElementById('transaction_type').value,
+        quantity: parseInt(document.getElementById('quantity').value),
+        price: parseFloat(document.getElementById('price').value),
+        transaction_date: document.getElementById('transaction_date').value,
+        sector: document.getElementById('sector').value
+      };
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stock)
+      });
+      alert("Stock added successfully!");
+      document.getElementById('stock-form').reset();
+    });
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

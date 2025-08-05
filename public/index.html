@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>SMART STOCK</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css" /> 
 </head>
 <body>
 
@@ -19,6 +19,17 @@
     
   </div>
 
+  <body>
+
+      <!-- 🌙 Dark Mode Toggle -->
+      <div style="display: flex; justify-content: flex-end; padding: 12px 20px;">
+        <label style="font-weight: bold; font-size: 16px; color: inherit;">
+          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+          🌙 Dark Mode
+        </label>
+      </div>
+    
+
   <h1>📋 SMART STOCK</h1>
 
   <!-- Market Mood Summary -->
@@ -30,7 +41,6 @@
     <span>WED</span>
     <span>THU</span>
     <span>FRI</span>
-    <span>SAT</span>
     <span class="today">TODAY</span>
   </div>
 
@@ -63,12 +73,42 @@
       <button class="view-btn" onclick="window.location.href='stocks.html'">🔍 Fetch Stock Data</button>
     </div>
   </div>
+
   <div class="card fetch-only-card">
     <h2>📈 Stock Analysis</h2>
     <p>Visualize your investments with interactive charts and insights.</p>
     <button class="view-btn" onclick="window.location.href='analysis.html'">📊 Go to Analysis</button>
   </div>
 
+
+  <div style="
+  background: linear-gradient(to right, #c084fc, #a855f7);
+  color: white;
+  padding: 30px 20px;
+  border-radius: 16px;
+  max-width: 1000px;
+  margin: 40px auto;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+">
+  <h2 style="margin-bottom: 10px; font-size: 28px;">📘 New to Stocks?</h2>
+  <p style="font-size: 18px; margin-bottom: 20px;">
+    Explore our beginner's guide to understand how stock markets work, how to invest, and how to use this app efficiently.
+  </p>
+  <a href="guide.html" style="
+    background: white;
+    color: #a855f7;
+    padding: 14px 30px;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 18px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  ">🚀 Read the Beginner's Guide</a>
+</div>
+
+  
+  
 
   <script>
     const API = 'http://localhost:3000/stocks';
@@ -94,6 +134,59 @@
       document.getElementById('stock-form').reset();
     });
   </script>
+
+  <!-- 🧠 Mini Assistant Widget -->
+<div id="assistant" style="
+position: fixed;
+bottom: 20px;
+right: 20px;
+background: #ffffff;
+border-radius: 12px;
+box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+padding: 15px;
+max-width: 250px;
+font-size: 14px;
+z-index: 999;
+">
+<strong>🧠 Ask Me:</strong>
+<select onchange="answerFAQ(this.value)" style="width:100%; margin-top:10px; padding:5px;">
+  <option selected disabled>-- Choose a question --</option>
+  <option value="stock">What is a stock?</option>
+  <option value="portfolio">What is a portfolio?</option>
+  <option value="mood">What does market mood mean?</option>
+  <option value="add">How to add a stock?</option>
+</select>
+<div id="faq-answer" style="margin-top:10px; color:#333;"></div>
+</div>
+
+<script>
+function answerFAQ(value) {
+  const answerBox = document.getElementById('faq-answer');
+  const responses = {
+    stock: "📈 A stock represents ownership in a company. When you own a stock, you own a part of the company.",
+    portfolio: "📁 A portfolio is your personal collection of stocks or investments.",
+    mood: "😎 Market mood shows how investors are feeling — fear, greed, etc.",
+    add: "➕ Use the 'Add New Stock' form to input your stock details and submit!"
+  };
+  answerBox.innerText = responses[value];
+}
+</script>
+
+<script>
+  function toggleDarkMode() {
+    const dark = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("dark-mode", dark);
+  }
+
+  window.onload = function () {
+    if (localStorage.getItem("dark-mode") === "true") {
+      document.body.classList.add("dark-mode");
+      document.getElementById("darkModeToggle").checked = true;
+    }
+  };
+</script>
+
+
 
 </body>
 </html>

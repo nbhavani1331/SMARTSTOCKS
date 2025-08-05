@@ -44,7 +44,7 @@ input, select, button {
 }
 
 button {
-  background-color: #a64dff;
+  background-color: #7a1fa2;
   color: white;
   font-weight: bold;
   border: none;
@@ -57,11 +57,11 @@ button:hover {
 }
 
 .view-btn {
-  background-color: #5dade2;
+  background-color: #7a1fa2;
 }
 
 .view-btn:hover {
-  background-color: #2e86c1;
+  background-color: #7a1fa2;
 }
 
 /* === LAYOUT === */

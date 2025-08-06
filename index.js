@@ -9,6 +9,7 @@ const {setRoutes} = require('./src/routes/app');
 
 const app = express(); // ✅ Move this to the top
 const PORT = 3000;
+app.use(require('express-status-monitor')()); // ✅ Add status monitor
 app.use(cors()); // Enable CORS
 app.use(express.json());
 

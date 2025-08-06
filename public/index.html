@@ -62,7 +62,13 @@
         <input type="number" step="0.01" placeholder="Price" id="price" required />
         <input type="date" id="transaction_date" required />
         <input placeholder="Sector (Optional)" id="sector" />
-        <button type="submit">Add Stock</button>
+        <!-- <button type="submit">Add Stock</button> -->
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="submit">Add Stock</button>
+          <button type="button" onclick="clearForm()">Clear</button>
+          <button type="button" onclick="generateRandom()">Random</button>
+        </div>
+        
       </form>
     </div>
 
@@ -79,6 +85,21 @@
     <p>Visualize your investments with interactive charts and insights.</p>
     <button class="view-btn" onclick="window.location.href='analysis.html'">📊 Go to Analysis</button>
   </div>
+
+  <!-- Buy Stock Card -->
+<div class="card fetch-only-card">
+  <h2>🛒 Buy Stock</h2>
+  <p>Purchase stocks and expand your investment portfolio.</p>
+  <button class="view-btn" onclick="window.location.href='buy.html'">Go to Buy</button>
+</div>
+
+<!-- Sell Stock Card -->
+<div class="card fetch-only-card">
+  <h2>💸 Sell Stock</h2>
+  <p>Sell your existing stocks and manage your returns.</p>
+  <button class="view-btn" onclick="window.location.href='sell.html'">Go to Sell</button>
+</div>
+
 
 
   <div style="
@@ -133,7 +154,46 @@
       alert("Stock added successfully!");
       document.getElementById('stock-form').reset();
     });
-  </script>
+
+      function clearForm() {
+        document.getElementById('stock-form').reset();
+        const msg = document.getElementById('resultMessage');
+        if (msg) msg.textContent = '';
+      }
+    
+      function generateRandom() {
+        const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const randomFloat = (min, max, decimals = 2) =>
+          (Math.random() * (max - min) + min).toFixed(decimals);
+    
+        const sectors = ['Technology', 'Finance', 'Healthcare', 'Energy', 'Retail'];
+        const companies = [
+          { symbol: 'AAPL', name: 'Apple Inc.' },
+          { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+          { symbol: 'TSLA', name: 'Tesla Inc.' },
+          { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+          { symbol: 'MSFT', name: 'Microsoft Corp.' }
+        ];
+    
+        const company = companies[randomInt(0, companies.length - 1)];
+    
+        document.getElementById('user_id').value = randomInt(100, 999);
+        document.getElementById('username').value = 'User' + randomInt(1, 100);
+        document.getElementById('stock_symbol').value = company.symbol;
+        document.getElementById('stock_company_name').value = company.name;
+        document.getElementById('transaction_type').value = Math.random() < 0.5 ? 'BUY' : 'SELL';
+        document.getElementById('quantity').value = randomInt(10, 100);
+        document.getElementById('price').value = randomFloat(50, 1000);
+        document.getElementById('transaction_date').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('sector').value = sectors[randomInt(0, sectors.length - 1)];
+      }
+
+
+    </script>
+    
+
+    
+ 
 
   <!-- 🧠 Mini Assistant Widget -->
 <div id="assistant" style="

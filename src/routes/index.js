@@ -1,16 +1,16 @@
-const{Router}=require('express');
-const IndexControllerController=require('../controllers/index');
+// const{Router}=require('express');
+// // const IndexControllerController=require('../controllers/index');
 
-const router = Router();
-const indexController = new IndexController();
+// const router = Router();
+// // const indexController = new IndexController();
 
-function setRoutes(app){
-    app.use('/api/stocks', router);
-    router.get('/', indexController.getStocks.bind(indexController));
-    router.post('/', indexController.createStock.bind(indexController));
-    router.put('/:id', indexController.updateStock.bind(indexController));
-    router.delete('/:id', indexController.deleteStock.bind(indexController));
+// function setRoutes(app){
+//     app.use('/api/stocks', router);
+//     router.get('/', indexController.getStocks.bind(indexController));
+//     router.post('/', indexController.createStock.bind(indexController));
+//     // router.put('/buy', indexController.buyStock.bind(indexController));  // buy operation
+//     // router.put('/sell', indexController.sellStock.bind(indexController));
 
-}
+// }
 
-module.exports = { setRoutes };
+// module.exports = { setRoutes };

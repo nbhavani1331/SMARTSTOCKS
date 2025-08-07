@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SMART STOCK | Portfolio Summary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #1e88e5;
+      --success: #43a047;
+      --danger: #e53935;
+      --neutral: #6c757d;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background-color: var(--bg);
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .dashboard {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .filter {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter select {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background-color: var(--card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .label {
+      font-size: 0.9rem;
+      color: var(--neutral);
+      margin-bottom: 0.5rem;
+    }
+
+    .value {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .value.success { color: var(--success); }
+    .value.danger { color: var(--danger); }
+    .value.primary { color: var(--primary); }
+
+    #loading {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 3rem;
+      color: var(--neutral);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .chart-container {
+      margin-top: 2rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 400px !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <h1>📊 Portfolio Summary</h1>
+
+    <div class="filter">
+      <label for="dateFilter">Filter: </label>
+      <select id="dateFilter">
+        <option value="all">All Time</option>
+        <option value="30">Last 30 Days</option>
+        <option value="7">Last 7 Days</option>
+      </select>
+    </div>
+
+    <div id="loading">Loading portfolio...</div>
+
+    <div class="cards" id="portfolioCards" style="display: none;">
+      <div class="card">
+        <div class="label">Total Investment (BUY)</div>
+        <div class="value success" id="totalInvestment">₹0</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Returns (SELL)</div>
+        <div class="value danger" id="totalReturns">₹0</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Shares Owned</div>
+        <div class="value primary" id="totalQuantity">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Unique Stock Symbols</div>
+        <div class="value" id="totalStocks">0</div>
+      </div>
+    </div>
+
+    <div class="chart-container" id="chartWrapper" style="display: none;">
+      <canvas id="investmentChart"></canvas>
+    </div>
+
+    <div class="footer">SMART STOCK &copy; 2025</div>
+  </div>
+
+  <script>
+    let chart; // chart instance
+    const formatCurrency = val => `₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+    async function fetchDataAndRender(filterDays = 'all') {
+      try {
+        const res = await fetch('http://localhost:3000/api/stocks');
+        const stocks = await res.json();
+
+        const now = new Date();
+        const filteredStocks = stocks.filter(stock => {
+          if (filterDays === 'all') return true;
+          const stockDate = new Date(stock.transaction_date);
+          const cutoff = new Date(now);
+          cutoff.setDate(now.getDate() - parseInt(filterDays));
+          return stockDate >= cutoff;
+        });
+
+        if (filteredStocks.length === 0) {
+          document.getElementById('loading').textContent = 'No data found for selected range.';
+          document.getElementById('portfolioCards').style.display = 'none';
+          document.getElementById('chartWrapper').style.display = 'none';
+          return;
+        }
+
+        let totalBuy = 0;
+        let totalSell = 0;
+        let totalQty = 0;
+        const uniqueSymbols = new Set();
+
+        const buyByDate = {};
+        const sellByDate = {};
+
+        filteredStocks.forEach(stock => {
+          const amount = stock.quantity * stock.price;
+          const dateKey = new Date(stock.transaction_date).toISOString().split('T')[0]; // YYYY-MM-DD
+          const type = stock.transaction_type?.toUpperCase();
+
+          if (type === 'BUY') {
+            totalBuy += amount;
+            buyByDate[dateKey] = (buyByDate[dateKey] || 0) + amount;
+          }
+          if (type === 'SELL') {
+            totalSell += amount;
+            sellByDate[dateKey] = (sellByDate[dateKey] || 0) + amount;
+          }
+
+          totalQty += stock.quantity;
+          uniqueSymbols.add(stock.stock_symbol);
+        });
+
+        // Update UI cards
+        document.getElementById('totalInvestment').textContent = formatCurrency(totalBuy);
+        document.getElementById('totalReturns').textContent = formatCurrency(totalSell);
+        document.getElementById('totalQuantity').textContent = totalQty;
+        document.getElementById('totalStocks').textContent = uniqueSymbols.size;
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('portfolioCards').style.display = 'grid';
+        document.getElementById('chartWrapper').style.display = 'block';
+
+        // Chart
+        const labels = Array.from(new Set([...Object.keys(buyByDate), ...Object.keys(sellByDate)])).sort();
+
+        const buyData = labels.map(date => buyByDate[date] || 0);
+        const sellData = labels.map(date => sellByDate[date] || 0);
+
+        const data = {
+          labels,
+          datasets: [
+            {
+              label: 'Investment (BUY)',
+              data: buyData,
+              backgroundColor: 'rgba(67, 160, 71, 0.6)',
+              borderRadius: 5
+            },
+            {
+              label: 'Returns (SELL)',
+              data: sellData,
+              backgroundColor: 'rgba(229, 57, 53, 0.6)',
+              borderRadius: 5
+            }
+          ]
+        };
+
+        const ctx = document.getElementById('investmentChart').getContext('2d');
+
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Investment vs Returns Over Time'
+              }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('loading').textContent = 'Error loading data.';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchDataAndRender();
+
+      document.getElementById('dateFilter').addEventListener('change', (e) => {
+        document.getElementById('loading').textContent = 'Updating...';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('portfolioCards').style.display = 'none';
+        document.getElementById('chartWrapper').style.display = 'none';
+        fetchDataAndRender(e.target.value);
+      });
+    });
+  </script>
+</body>
+</html>

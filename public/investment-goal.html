@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Investment Goals - SMART STOCK</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e2f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #2c2c3e;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #00d8a7;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: 500;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    .slider-container {
+      margin-top: 20px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .progress-value {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 30px;
+      width: 100%;
+      padding: 12px;
+      background-color: #00d8a7;
+      border: none;
+      font-size: 18px;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00a57c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🎯 Set Your Investment Goals</h2>
+
+    <!-- Investment Objective -->
+    <label for="objective">Investment Objective</label>
+    <select id="objective">
+      <option value="short">Short-Term</option>
+      <option value="long">Long-Term</option>
+      <option value="retirement">Retirement</option>
+    </select>
+
+    <!-- Risk Tolerance -->
+    <label for="risk">Risk Tolerance</label>
+    <select id="risk">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <!-- Target ROI -->
+    <label for="roi-goal">Target ROI Goal (%)</label>
+    <div class="slider-container">
+      <input type="range" id="roi-goal" min="0" max="100" step="1" value="10">
+      <div class="progress-value">📈 Current Goal: <span id="roi-value">10%</span></div>
+    </div>
+
+    <!-- Submit Button -->
+    <button onclick="saveGoals()">💾 Save Goals</button>
+  </div>
+
+  <script>
+    const roiSlider = document.getElementById('roi-goal');
+    const roiValue = document.getElementById('roi-value');
+
+    roiSlider.addEventListener('input', () => {
+      roiValue.textContent = roiSlider.value + '%';
+    });
+
+    function saveGoals() {
+      const objective = document.getElementById('objective').value;
+      const risk = document.getElementById('risk').value;
+      const roi = document.getElementById('roi-goal').value;
+
+      // In real app: send data to backend via fetch() or form POST
+      alert(`✅ Goals Saved!\n\nObjective: ${objective}\nRisk Tolerance: ${risk}\nTarget ROI: ${roi}%`);
+    }
+  </script>
+</body>
+</html>

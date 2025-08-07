@@ -1,327 +1,129 @@
-/* === GLOBAL STYLES === */
 body {
-  margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f3e8ff;
-  background-image: url('https://www.transparenttextures.com/patterns/clean-gray-paper.png');
-  color: #333;
+  background: linear-gradient(to bottom right, #ede9fe, #f5f3ff);
+  color: #1f1b2e;
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
   text-align: center;
+  font-size: 2.75rem;
+  margin: 30px 0 10px;
+  color: #6d28d9;
+  text-shadow: 1px 1px 3px rgba(109, 40, 217, 0.1);
+}
+
+.market-summary {
+  background: linear-gradient(to right, #c4b5fd, #a78bfa);
+  color: #1f1b2e;
   padding: 20px;
-  color: #4B0082;
-  font-size: 32px;
+  border-radius: 12px;
+  margin: 10px auto 30px;
+  width: 90%;
+  max-width: 700px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.1);
 }
 
-#marquee {
-  background-color: #b366ff;
-  padding: 10px;
-  color: #fff;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-/* === CARDS === */
 .card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 25px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  margin: 20px auto;
-  width: 95%;
-  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  padding: 30px 25px;
+  margin: 30px auto;
+  max-width: 900px;
+  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.12);
+  transition: transform 0.2s ease;
 }
 
-/* === FORM INPUTS === */
-input, select, button {
-  width: 100%;
-  margin-bottom: 12px;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.card:hover {
+  transform: scale(1.02);
 }
 
-button {
-  background-color: #7a1fa2;
-  color: white;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
+.card h2 {
+  font-size: 1.75rem;
+  color: #7c3aed;
+  margin-bottom: 15px;
 }
 
-button:hover {
-  background-color: #7a1fa2;
+.card p {
+  font-size: 1.05rem;
+  color: #4b5563;
+  margin-bottom: 25px;
 }
 
 .view-btn {
-  background-color: #7a1fa2;
+  background: linear-gradient(to right, #7c3aed, #8b5cf6);
+  color: white;
+  padding: 12px 26px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.25);
 }
 
 .view-btn:hover {
-  background-color: #7a1fa2;
+  background: linear-gradient(to right, #a78bfa, #c4b5fd);
+  transform: scale(1.03);
 }
 
-/* === LAYOUT === */
-.main-sections {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* === MARKET MOOD BAR ON HOMEPAGE === */
-.market-summary {
-  background: linear-gradient(to right, #c084fc, #a855f7);
-  padding: 20px;
-  border-radius: 15px;
-  text-align: center;
-  margin: 20px auto;
-  width: 95%;
-  max-width: 1200px;
-  color: #fff;
-  font-size: 20px;
-  font-weight: bold;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-  cursor: pointer;
-}
-
-.market-summary span {
-  margin: 0 8px;
-  background: #fff;
-  padding: 5px 10px;
-  border-radius: 10px;
-  color: #a855f7;
-  font-weight: bold;
-}
-
-.market-summary .today {
-  background: #ff5733;
-  color: white;
-}
-
-/* === TABLE STYLING === */
-.table-container {
-  padding: 20px;
-  max-width: 95%;
-  margin: auto;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid #ccc;
-}
-
-th {
-  background-color: #a855f7;
-  color: white;
-}
-
-tr:nth-child(even) {
-  background-color: #f3e8ff;
-}
-
-/* === MMI BAR GRAPH === */
-.mmi-bar-graph {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  height: 320px;
-  max-width: 95%;
-  margin: 50px auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.bar {
-  width: 60px;
-  background-color: #a855f7;
-  color: white;
-  text-align: center;
-  border-radius: 10px 10px 0 0;
-  padding-top: 10px;
-  font-weight: bold;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.bar span {
-  display: block;
-  font-size: 24px;
-  margin-top: 10px;
-}
-
-.bar:hover {
-  background-color: #7e22ce;
-  transform: scaleY(1.1);
-}
-
-.bar.today {
-  background-color: #ff5722;
-}
-
-/* === TEXT BELOW GRAPH === */
-.mmi-label {
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  color: #a64dff;
-  margin-top: 20px;
-}
-
-/* === BUTTON BELOW GRAPH === */
-.mmi-label + button {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-}
-
-
-
-/*profile page styles */
+/* Profile Menu */
 .profile-menu {
-  position: fixed;
+  position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 1000;
 }
 
 .profile-circle {
-  width: 40px;
-  height: 40px;
-  background-color: #6c63ff;
+  background: linear-gradient(to right, #8b5cf6, #7c3aed);
   color: white;
   border-radius: 50%;
+  width: 44px;
+  height: 44px;
   text-align: center;
-  line-height: 40px;
+  line-height: 44px;
   font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: background 0.3s;
-}
-
-.profile-circle:hover {
-  background-color: #4e47d0;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
 .dropdown-menu {
   display: none;
   position: absolute;
   right: 0;
-  background: white;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  border-radius: 8px;
-  overflow: hidden;
   margin-top: 10px;
-  min-width: 180px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  z-index: 10;
 }
 
 .dropdown-menu a {
   display: block;
-  padding: 10px 16px;
+  padding: 12px 20px;
   text-decoration: none;
-  color: #333;
-  border-bottom: 1px solid #eee;
+  color: #4c1d95;
+  font-weight: 500;
+  transition: background 0.2s ease;
 }
 
 .dropdown-menu a:hover {
-  background-color: #f1f1f1;
+  background-color: #ede9fe;
 }
 
-.dropdown-menu a:last-child {
-  border-bottom: none;
-}
-
-/*colorr of buy/sell*/
-:root {
-  --buy-bg: #e6ffed;   /* Light green for BUY rows */
-  --sell-bg: #ffecec;  /* Light red for SELL rows */
-}
-
-
-/* Smooth Entry */
-body {
-  animation: fadeIn 1s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Buttons */
-button {
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-/* Card Glass Effect */
-.card {
-  backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  border-radius: 20px;
-  transition: transform 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-/* BUY/SELL Tag Styling */
-.stock-tag {
-  padding: 6px 12px;
-  border-radius: 12px;
+/* Marquee */
+#marquee {
+  background: linear-gradient(to right, #9e7bdb, #8b5cf6);
   color: white;
-  font-weight: bold;
-  display: inline-block;
-}
-
-.stock-tag.BUY {
-  background: #16a34a; /* green */
-}
-
-.stock-tag.SELL {
-  background: #dc2626; /* red */
-}
-
-/* Floating glowing fetch button */
-.floating-fetch {
-  position: fixed;
-  bottom: 80px;
-  right: 30px;
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  padding: 14px 22px;
-  border-radius: 50px;
-  color: white;
-  font-weight: bold;
-  box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
-  border: none;
-  font-size: 16px;
-  z-index: 1000;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0px rgba(147, 51, 234, 0.4); }
-  70% { box-shadow: 0 0 20px rgba(147, 51, 234, 0); }
-  100% { box-shadow: 0 0 0px rgba(147, 51, 234, 0.4); }
+  font-size: 1rem;
+  padding: 12px 0;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }

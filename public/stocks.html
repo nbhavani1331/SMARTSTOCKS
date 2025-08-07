@@ -194,7 +194,7 @@
         data.forEach(txn => {
           const row = document.createElement('tr');
 
-          const typeClass = s.transaction_type === 'BUY' ? 'BUY' : 'SELL';
+          const typeClass = txn.transaction_type === 'BUY' ? 'BUY' : 'SELL';
 
           row.innerHTML = `
             <td>${txn.transaction_id}</td>

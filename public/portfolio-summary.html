@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SMART STOCK | Portfolio Summary</title>
+  <title>SMART STOCKS | Portfolio Summary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -155,7 +155,8 @@
 
     async function fetchDataAndRender(filterDays = 'all') {
       try {
-        const res = await fetch('http://localhost:3000/api/stocks');
+        //const res = await fetch('http://localhost:3000/api/stocks');
+        const res = await fetch('http://localhost:4000/api/transactions/all');
         const stocks = await res.json();
 
         const now = new Date();
@@ -183,7 +184,7 @@
         const sellByDate = {};
 
         filteredStocks.forEach(stock => {
-          const amount = stock.quantity * stock.price;
+          const amount = stock.quantity * stock.price_per_unit;
           const dateKey = new Date(stock.transaction_date).toISOString().split('T')[0]; // YYYY-MM-DD
           const type = stock.transaction_type?.toUpperCase();
 

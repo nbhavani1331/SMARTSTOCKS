@@ -1,39 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SMART STOCK – All Stocks</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>SMART STOCK – Transactions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 0;
       background: #f8fafc;
       color: #111827;
-      animation: fadeIn 0.8s ease-in-out;
-      transition: background-color 0.5s ease, color 0.5s ease;
+      transition: background-color 0.4s, color 0.4s;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #6d28d9;
+      color: white;
+      padding: 12px 24px;
+    }
+
+    .navbar .title {
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .navbar .links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .navbar .links a {
+      text-decoration: none;
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      transition: opacity 0.3s;
+    }
+
+    .navbar .links a:hover {
+      opacity: 0.8;
+    }
+
+    .navbar .toggle {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
     }
 
     h1 {
       text-align: center;
-      font-size: 2.2rem;
-      margin-bottom: 20px;
+      font-size: 2rem;
+      margin: 20px 0;
     }
 
     .table-container {
-      overflow-x: auto;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.95);
+      margin: 20px;
+      padding: 20px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      padding: 20px;
+      overflow-x: auto;
     }
 
     table {
@@ -49,93 +81,88 @@
     }
 
     th {
-      background-color: #f1f5f9;
+      background-color: #ede9fe;
       font-weight: 600;
     }
 
-    .stock-tag {
-      padding: 6px 12px;
-      border-radius: 20px;
-      color: white;
-      font-weight: 600;
-      display: inline-block;
+    tr:nth-child(even) {
+      background-color: #f3f4f6;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #fff;
     }
 
     .BUY {
-      background: #16a34a;
+      color: green;
+      font-weight: bold;
     }
 
     .SELL {
-      background: #dc2626;
+      color: red;
+      font-weight: bold;
     }
 
+    .refresh-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 12px;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Dark Mode */
     .dark-mode {
       background-color: #1e1e1e;
       color: #f0f0f0;
-    }
-
-    .dark-mode th {
-      background-color: #2c2c2c;
-    }
-
-    .dark-mode td, .dark-mode th {
-      color: #f0f0f0;
-      border-color: #444;
     }
 
     .dark-mode .table-container {
       background-color: #2a2a2a;
     }
 
-    .dark-mode input,
-    .dark-mode button {
-      background-color: #333;
+    .dark-mode th {
+      background-color: #3f3f46;
       color: white;
-      border-color: #555;
     }
 
-    .total-value {
-      margin-top: 20px;
-      font-weight: bold;
-      font-size: 18px;
-      text-align: center;
+    .dark-mode tr:nth-child(even) {
+      background-color: #262626;
     }
 
-    /* Floating Button */
-    .floating-fetch {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: linear-gradient(135deg, #4f46e5, #9333ea);
-      padding: 14px 22px;
-      border-radius: 50px;
-      color: white;
-      font-weight: bold;
-      box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
-      border: none;
-      font-size: 16px;
-      z-index: 1000;
-      animation: pulse 2s infinite;
-      cursor: pointer;
+    .dark-mode tr:nth-child(odd) {
+      background-color: #1f1f1f;
     }
 
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0px rgba(147, 51, 234, 0.4); }
-      70% { box-shadow: 0 0 20px rgba(147, 51, 234, 0); }
-      100% { box-shadow: 0 0 0px rgba(147, 51, 234, 0.4); }
+    .dark-mode .navbar {
+      background-color: #4c1d95;
     }
 
-    /* Toggle */
-    .toggle-container {
-      text-align: right;
-      margin-bottom: 10px;
+    .dark-mode .navbar .links a {
+      color: #e5e5ff;
+    }
+
+    .dark-mode .refresh-button {
+      background: #a78bfa;
+      color: #1e1e1e;
     }
 
     @media (max-width: 768px) {
-      .floating-fetch {
-        right: 20px;
-        bottom: 20px;
-        padding: 12px 16px;
+      .navbar .links {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .navbar .title {
+        font-size: 16px;
       }
 
       h1 {
@@ -144,24 +171,26 @@
     }
   </style>
 </head>
-
-
- 
-
 <body>
-
-  <!-- 🌙 Dark Mode Toggle -->
-  <div class="toggle-container">
-    <label title="Toggle dark mode">
-      <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
-      🌙 Dark Mode
-    </label>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="title">📊 Transactions</div>
+    <div class="links">
+      <a href="/index.html">🏠 Home</a>
+      <a href="/market_stocks.html">💹 Buy/Sell Stocks</a>
+      <label class="toggle">
+        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+        🌙
+      </label>
+    </div>
   </div>
 
+  <!-- Heading -->
   <h1>📈 Transaction Log</h1>
 
+  <!-- Table Container -->
   <div class="table-container">
-    <table id="transaction-table">
+    <table>
       <thead>
         <tr>
           <th>Transaction ID</th>
@@ -177,29 +206,27 @@
     </table>
   </div>
 
-  <div class="total-value">
-    💰 Total Invested Value: ₹<span id="total-value">0</span>
-  </div>
+  <!-- Small Refresh Button -->
+  <button class="refresh-button" onclick="location.reload()">🔁 Refresh</button>
 
-  <!-- Floating Button -->
-  <button class="floating-fetch" onclick="location.reload()">🔁 Refresh Stocks</button>
-
+  <!-- Script -->
   <script>
-    // ✅ Fetch and display transaction log data
-    fetch('http://localhost:4000/api/transactions/all') // <-- Update this to your correct API route
+    fetch('http://localhost:4000/api/transactions/all')
       .then(res => res.json())
       .then(data => {
         const tbody = document.getElementById('transaction-body');
-
         data.forEach(txn => {
           const row = document.createElement('tr');
 
+
           const typeClass = txn.transaction_type === 'BUY' ? 'BUY' : 'SELL';
+
+
 
           row.innerHTML = `
             <td>${txn.transaction_id}</td>
             <td>${txn.stock_symbol}</td>
-            <td>${txn.transaction_type}</td>
+            <td class="${txn.transaction_type}">${txn.transaction_type}</td>
             <td>${txn.quantity}</td>
             <td>${txn.price_per_unit}</td>
             <td>${txn.total_value}</td>
@@ -209,7 +236,6 @@
         });
       });
 
-    // Dark mode logic
     function toggleDarkMode() {
       const dark = document.body.classList.toggle("dark-mode");
       localStorage.setItem("dark-mode", dark);
@@ -222,7 +248,5 @@
       }
     };
   </script>
-
 </body>
-
 </html>

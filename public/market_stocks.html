@@ -2,43 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Market Stocks</title>
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      transition: background-color 0.5s ease, color 0.5s ease;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f7fa;
+      color: #1f2937;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    header {
+      background: linear-gradient(135deg, #6b21a8, #9333ea);
+      padding: 15px 30px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    header h2 {
+      margin: 0;
+      font-weight: 800;
+    }
+
+    .nav-buttons button {
+      margin-left: 10px;
+      background: white;
+      color: #6b21a8;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .nav-buttons button:hover {
+      background: #e0d4f7;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
     }
 
     h1 {
       text-align: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
     }
 
     .table-container {
-      margin-top: 20px;
       overflow-x: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      min-width: 800px;
     }
 
     th, td {
-      padding: 12px;
+      padding: 14px 16px;
       text-align: left;
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     th {
-      background-color: #2c81ca;
+      background-color: #ede9fe;
+      color: #4c1d95;
     }
 
-    /* Dark mode styles */
+    td button {
+      margin-right: 6px;
+      background: #9333ea;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+
+    td button:hover {
+      background-color: #7e22ce;
+    }
+
+    /* Dark mode */
     .dark-mode {
-      background-color: #1c1c1c;
+      background-color: #1e1e1e;
       color: #f0f0f0;
     }
 
@@ -47,97 +109,63 @@
       color: #f0f0f0;
     }
 
+    .dark-mode th {
+      background-color: #3b0764;
+    }
+
     .dark-mode .table-container {
       background-color: #2a2a2a;
     }
 
-    .dark-mode input,
-    .dark-mode select,
-    .dark-mode button {
-      background-color: #333;
+    .dark-mode .nav-buttons button {
+      background: #4c1d95;
       color: white;
-      border-color: #555;
     }
   </style>
 </head>
 
 <body>
+  <header>
+    <h2>📈 SMART STOCKS</h2>
+    <div class="nav-buttons">
+      <button onclick="location.href='index.html'">Home</button>
+      <button onclick="location.href='user_stocks.html'">My Stocks</button>
+      <button onclick="location.href='stocks.html'">Transactions</button>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"> 🌙 Dark Mode
+      </label>
+    </div>
+  </header>
 
-  <!-- 🌙 Dark Mode Toggle -->
-  <div style="text-align: right; padding: 10px 20px;">
-    <label style="font-weight: bold;" title="Toggle light/dark mode">
-      <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
-      🌙 Dark Mode
-    </label>
+  <div class="container">
+    <h1>📊 Market Stocks</h1>
+    <div class="table-container">
+      <table id="market-stock-table">
+        <thead>
+          <tr>
+            <th>Stock ID</th>
+            <th>Symbol</th>
+            <th>Company</th>
+            <th>Available Qty</th>
+            <th>Price/Unit</th>
+            <th>Sector</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="stock-body"></tbody>
+      </table>
+    </div>
   </div>
-
-  <h1>📊 Market Stocks</h1>
-
-  <div class="table-container">
-    <table id="market-stock-table">
-      <thead>
-        <tr>
-          <th>Stock ID</th>
-          <th>Stock Symbol</th>
-          <th>Company Name</th>
-          <th>Available Quantity</th>
-          <th>Price per Unit</th>
-          <th>Sector</th>
-        </tr>
-      </thead>
-      <tbody id="stock-body"></tbody>
-    </table>
-  </div>
-
-  <!-- <script>
-    // ✅ Fetch and display market stocks
-    fetch('http://localhost:4000/api/stocks') // <--- Use your actual endpoint here
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById('stock-body');
-
-        data.forEach(stock => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${stock.stock_id}</td>
-            <td>${stock.stock_symbol}</td>
-            <td>${stock.company_name}</td>
-            <td>${stock.available_quantity}</td>
-            <td>${stock.price_per_unit}</td>
-            <td>${stock.sector}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      });
-
-
-
-    // ✅ Dark Mode Toggle
-    function toggleDarkMode() {
-      const dark = document.body.classList.toggle("dark-mode");
-      localStorage.setItem("dark-mode", dark);
-    }
-
-    window.onload = function () {
-      if (localStorage.getItem("dark-mode") === "true") {
-        document.body.classList.add("dark-mode");
-        document.getElementById("darkModeToggle").checked = true;
-      }
-    };
-  </script> -->
 
   <script>
-    const userId = 1; // ✅ Hardcoded user ID for testing (replace with dynamic one if needed later)
-  
-    // ✅ Fetch and display market stocks
+    const userId = 1;
+
     fetch('http://localhost:4000/api/stocks')
       .then(res => res.json())
       .then(data => {
         const tbody = document.getElementById('stock-body');
-  
         data.forEach(stock => {
           const row = document.createElement('tr');
-  
           row.innerHTML = `
             <td>${stock.stock_id}</td>
             <td>${stock.stock_symbol}</td>
@@ -150,201 +178,67 @@
               <button onclick="handleSell('${stock.stock_symbol}')">Sell</button>
             </td>
           `;
-  
           tbody.appendChild(row);
         });
       });
-  
-    // ✅ Buy function
-    //function handleBuy(stockSymbol) {
-     // const quantity = prompt(`Enter quantity to BUY for ${stockSymbol}:`);
-      //if (!quantity) return;
-  
-    /*  fetch('http://localhost:4000/api/stocks/buy', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          stock_symbol: stockSymbol,
-          quantity: parseInt(quantity),
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "Stock bought successfully.");
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Buy failed.");
-      });
-    } */
 
+    function handleBuy(stockSymbol) {
+      const quantity = prompt(`Enter quantity to BUY for ${stockSymbol}:`);
+      if (!quantity) return;
+      const qty = parseInt(quantity);
+      if (isNaN(qty) || qty <= 0) return alert("Invalid quantity.");
 
+      fetch(`http://localhost:4000/api/stocks/market/${stockSymbol}`)
+        .then(res => res.json())
+        .then(stock => {
+          if (qty > stock.available_quantity) return alert(`Only ${stock.available_quantity} available.`);
 
-    /*function handleBuy(stockSymbol) {
-        const quantity = prompt(`Enter quantity to BUY for ${stockSymbol}:`);
-      
-        if (!quantity) return;
-      
-        const qty = parseInt(quantity);
-      
-        if (isNaN(qty) || qty <= 0) {
-          alert("Invalid quantity. Please enter a number greater than 0.");
-          return;
-        }
-      
-        fetch(`http://localhost:4000/api/stocks/${stockSymbol}`)
+          fetch('http://localhost:4000/api/stocks/buy', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock_symbol: stockSymbol, quantity: qty, user_id: userId })
+          })
           .then(res => res.json())
-          .then(stock => {
-            if (!stock || !stock.available_quantity) {
-              alert("Stock not found in market.");
-              return;
-            }
-      
-            if (qty > stock.available_quantity) {
-              alert(`Quantity unavailable. Only ${stock.available_quantity} left in market.`);
-              return;
-            }
-      
-            // Proceed with the buy if quantity is valid
-            fetch('http://localhost:4000/api/stocks/buy', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                stock_symbol: stockSymbol,
-                quantity: qty,
-              })
-            })
-            .then(res => res.json())
-            .then(data => {
-              alert(data.message || "Stock bought successfully.");
-            })
-            .catch(err => {
-              console.error(err);
-              alert("Buy failed.");
-            });
-          })
-          .catch(err => {
-            console.error(err);
-            alert("Failed to validate stock.");
-          });
-      }*/
+          .then(data => alert(data.message || "Stock bought successfully."))
+          .catch(() => alert("Buy failed."));
+        });
+    }
 
-      function handleBuy(stockSymbol) {
-        const quantity = prompt(`Enter quantity to BUY for ${stockSymbol}:`);
-      
-        if (!quantity) return;
-      
-        const qty = parseInt(quantity);
-      
-        if (isNaN(qty) || qty <= 0) {
-          alert("Invalid quantity. Please enter a number greater than 0.");
-          return;
-        }
-      
-        // Fetch stock details by stock_symbol
-        fetch(`http://localhost:4000/api/stocks/market/${stockSymbol}`)
-          .then(res => {
-            if (!res.ok) {
-              throw new Error("Stock not found in market.");
-            }
-            return res.json();
+    function handleSell(stockSymbol) {
+      const quantity = prompt(`Enter quantity to SELL for ${stockSymbol}:`);
+      if (!quantity) return;
+      const qty = parseInt(quantity);
+      if (isNaN(qty) || qty <= 0) return alert("Invalid quantity.");
+
+      fetch(`http://localhost:4000/api/stocks/market/${stockSymbol}`)
+        .then(res => res.json())
+        .then(stock => {
+          const ownedQty = stock.quantity;
+          if (qty > ownedQty) return alert(`You only have ${ownedQty} shares.`);
+
+          fetch('http://localhost:4000/api/stocks/sell', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock_symbol: stockSymbol, quantity: qty })
           })
-          .then(stock => {
-            if (!stock || typeof stock.available_quantity !== 'number') {
-              alert("Stock data is invalid or missing.");
-              return;
-            }
-      
-            if (qty > stock.available_quantity) {
-              alert(`Quantity unavailable. Only ${stock.available_quantity} left in market.`);
-              return;
-            }
-      
-            // Proceed with the buy
-            fetch('http://localhost:4000/api/stocks/buy', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                stock_symbol: stockSymbol,
-                quantity: qty,
-                user_id: 1 // 🔁 Replace with actual logged-in user ID or dynamic input
-              })
-            })
-            .then(res => res.json())
-            .then(data => {
-              alert(data.message || "Stock bought successfully.");
-            })
-            .catch(err => {
-              console.error(err);
-              alert("Buy failed due to server error.");
-            });
-          })
-          .catch(err => {
-            console.error(err);
-            alert(err.message || "Failed to validate stock.");
-          });
+          .then(res => res.json())
+          .then(data => alert(data.message || "Stock sold successfully."))
+
+          .catch(() => alert("Sell failed."));
+        });
+    }
+
+    function toggleDarkMode() {
+      const dark = document.body.classList.toggle("dark-mode");
+      localStorage.setItem("dark-mode", dark);
+    }
+
+    window.onload = () => {
+      if (localStorage.getItem("dark-mode") === "true") {
+        document.body.classList.add("dark-mode");
+        document.getElementById("darkModeToggle").checked = true;
       }
-      
-      
-      
-  
-    // ✅ Sell function
-   
-
-          function handleSell(stockSymbol) {
-            const quantity = prompt(`Enter quantity to SELL for ${stockSymbol}:`);
-            if (!quantity) return;
-          
-            const qty = parseInt(quantity);
-          
-            if (isNaN(qty) || qty <= 0) {
-              alert("Invalid quantity. Please enter a number greater than 0.");
-              return;
-            }
-          
-            // First, get user's current portfolio quantity
-            fetch(`http://localhost:4000/api/stocks/market/${stockSymbol}`)
-              .then(res => res.json())
-              .then(portfolio => {
-                const ownedQty = portfolio.quantity;
-          
-                if (qty > ownedQty) {
-                  alert(`You cannot sell more than you own. You only have ${ownedQty} shares.`);
-                  return;
-                }
-          
-                // Proceed with the sell
-                fetch('http://localhost:4000/api/stocks/sell', {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    stock_symbol: stockSymbol,
-                    quantity: qty
-                  })
-                })
-                .then(res => res.json())
-                .then(data => {
-                  if (data.error) {
-                    alert(`Sell failed: ${data.error}`);
-                  } else {
-                    alert(data.message || "Stock sold successfully.");
-                  }
-                })
-                .catch(err => {
-                  console.error(err);
-                  alert("Sell failed due to network error.");
-                });
-              })
-              .catch(err => {
-                console.error(err);
-                alert("Failed to retrieve portfolio information.");
-              });
-          }
-          
-      
-      
+    }
   </script>
-  
-
 </body>
 </html>

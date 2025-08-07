@@ -1,52 +1,37 @@
-// const express = require('express');
-// const {connectToDatabase} = require('./config/database');
-// //const cors= require('cors');
-// const IndexController = require('../controllers/index');
-// const indexController = new IndexController();
 
-// const {setRoutes}= require('./routes/index');
+const { Router } = require('express');
+const {
+    getAllStocks,
+    getMarketStockById,
+    createMarketStock,
+    getTransactions,
+    getTransactionById,
+    buyStock,
+    sellStock,
+    getUserStocks,
+    getMarketStockBySymbol
+  } = require('../controllers/index');
 
+  function setRoutes(app) {
+    // Market Stocks Routes
+    app.get('/api/stocks', getAllStocks);                       // Get all stocks
+    app.get('/api/stocks/:stock_id', getMarketStockById);       // Get stock by ID
+    app.get('/api/stocks/market/:stock_symbol', getMarketStockBySymbol);       // Get stock by symbol
+    app.post('/api/stocks', createMarketStock);                 // Create a new stock
+  
+    // Transaction Log Routes
+    app.get('/api/transactions/all', getTransactions);                 // Get all transactions
+    app.get('/api/transactions/:transaction_id', getTransactionById); // Get transaction by ID
+  
+    // Buy & Sell Routes
+    app.put('/api/stocks/buy', buyStock);                        // Buy stock
+    app.put('/api/stocks/sell', sellStock);                      // Sell stock
 
-// const app= express();
-// const PORT=process.env.PORT || 3500;
-// //enable cors//app.use(cors());
-
-// app.use(express.json());
-
-// connectToDatabase()
-// .then(() => {
-//     console.log('Connected to the database');
-//     setRoutes(app);
-//     app.listen(PORT, () => {
-//         console.log(`Server running at http://localhost:${PORT}`);
-//     });
-// })
-// .catch(err => {
-//     console.error('Database connection failed:', err);
-// })
-
-
-
-const {Router} = require('express');
-const IndexController = require('../controllers/index');
-const indexController = new IndexController();
-
-
-const router = Router();
-
-function setRoutes(app) {
-    app.use('/api/stocks', router);
-    
-    // Define the routes
-    router.get('/', indexController.getStocks.bind(indexController));
-    // router.get('/:id', indexController.getItemById.bind(indexController));
-    router.post('/', indexController.createStock.bind(indexController));
-    router.put('/buy', indexController.buyStock.bind(indexController));  // buy operation
-    router.put('/sell', indexController.sellStock.bind(indexController));
+    app.get('/api/getUserStocks', getUserStocks);    //gets user owned stocks
+  }
+  
+  module.exports = {setRoutes};
 
 
-    // router.put('/:id', indexController.updateItem.bind(indexController));   // ✅ PUT
-    // router.delete('/:id', indexController.deleteItem.bind(indexController)); // ✅ DELETE
-}
-
-module.exports = {setRoutes};
+ 
+  

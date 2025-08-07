@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,38 +85,29 @@
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000/api/stocks';
+    const sectorAPI = 'http://localhost:4000/api/stocks/';
+    const transactionAPI = 'http://localhost:4000/api/transactions/all';
 
-    fetch(API_URL)
+    // Fetch and plot sector chart
+    fetch(sectorAPI)
       .then(res => res.json())
       .then(data => {
-        // Sector Distribution
         const sectorCount = {};
-        const transactionTypeCount = { BUY: 0, SELL: 0 };
 
         data.forEach(stock => {
           const sector = stock.sector || 'Unknown';
           sectorCount[sector] = (sectorCount[sector] || 0) + 1;
-
-          const type = stock.transaction_type.toUpperCase();
-          if (transactionTypeCount[type] !== undefined) {
-            transactionTypeCount[type]++;
-          }
         });
 
-        const sectorLabels = Object.keys(sectorCount);
-        const sectorValues = Object.values(sectorCount);
+        const labels = Object.keys(sectorCount);
+        const values = Object.values(sectorCount);
 
-        const typeLabels = Object.keys(transactionTypeCount);
-        const typeValues = Object.values(transactionTypeCount);
-
-        // Sector Chart
         new Chart(document.getElementById('sectorChart'), {
           type: 'pie',
           data: {
-            labels: sectorLabels,
+            labels,
             datasets: [{
-              data: sectorValues,
+              data: values,
               backgroundColor: ['#9C27B0', '#7B1FA2', '#6A1B9A', '#4A148C', '#AB47BC', '#CE93D8']
             }]
           },
@@ -128,14 +120,34 @@
             }
           }
         });
+      })
+      .catch(err => {
+        console.error("Sector Chart Error:", err);
+        alert("Failed to load sector chart data.");
+      });
 
-        // Buy vs Sell Chart
+    // Fetch and plot transaction type chart
+    fetch(transactionAPI)
+      .then(res => res.json())
+      .then(data => {
+        const transactionCount = { BUY: 0, SELL: 0 };
+
+        data.forEach(tx => {
+          const type = (tx.transaction_type || '').toUpperCase();
+          if (transactionCount[type] !== undefined) {
+            transactionCount[type]++;
+          }
+        });
+
+        const labels = Object.keys(transactionCount);
+        const values = Object.values(transactionCount);
+
         new Chart(document.getElementById('transactionTypeChart'), {
           type: 'doughnut',
           data: {
-            labels: typeLabels,
+            labels,
             datasets: [{
-              data: typeValues,
+              data: values,
               backgroundColor: ['#8E24AA', '#BA68C8']
             }]
           },
@@ -148,11 +160,10 @@
             }
           }
         });
-
       })
       .catch(err => {
-        console.error("Error loading data:", err);
-        alert("Failed to load chart data. Make sure the backend is running.");
+        console.error("Transaction Chart Error:", err);
+        alert("Failed to load transaction chart data.");
       });
   </script>
 </body>

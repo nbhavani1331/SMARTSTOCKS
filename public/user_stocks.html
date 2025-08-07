@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Portfolio</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      color: #000;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    h1 {
+      color: #0077cc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #cce5ff;
+      color: #003366;
+    }
+
+    .dark-mode {
+      background-color: #1c1c1c;
+      color: #f0f0f0;
+    }
+
+    .dark-mode table, .dark-mode th, .dark-mode td {
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+    }
+
+    .dark-mode th {
+      background-color: #444;
+      color: #fff;
+    }
+
+    .dark-mode .table-container {
+      background-color: #2a2a2a;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    #darkModeToggleContainer {
+      text-align: right;
+      padding: 10px 20px;
+    }
+
+    input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    canvas {
+      margin-top: 40px;
+      max-width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 🌙 Dark Mode Toggle -->
+  <div id="darkModeToggleContainer">
+    <label style="font-weight: bold;" title="Toggle light/dark mode">
+      <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+      🌙 Dark Mode
+    </label>
+  </div>
+
+  <h1>📊 User Portfolio</h1>
+
+  <!-- Table Display -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Stock Symbol</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody id="portfolio-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Chart Display -->
+  <canvas id="portfolioChart"></canvas>
+
+  <script>
+    // ✅ Fetch and display user portfolio
+    fetch('http://localhost:4000/api/getUserStocks')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('portfolio-body');
+        const labels = [];
+        const quantities = [];
+
+        data.forEach(stock => {
+          // Add to table
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${stock.stock_symbol}</td>
+            <td>${stock.quantity}</td>
+          `;
+          tbody.appendChild(row);
+
+          // Add to chart data
+          labels.push(stock.stock_symbol);
+          quantities.push(stock.quantity);
+        });
+
+        // Draw chart
+        const ctx = document.getElementById('portfolioChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Quantity Owned',
+              data: quantities,
+              backgroundColor: '#3399ff',
+              borderColor: '#0077cc',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      })
+      .catch(err => {
+        alert("Failed to fetch portfolio: " + err.message);
+      });
+
+    // ✅ Dark Mode Toggle
+    function toggleDarkMode() {
+      const dark = document.body.classList.toggle("dark-mode");
+      localStorage.setItem("dark-mode", dark);
+    }
+
+    // ✅ Load dark mode on page load if enabled
+    window.onload = function () {
+      if (localStorage.getItem("dark-mode") === "true") {
+        document.body.classList.add("dark-mode");
+        document.getElementById("darkModeToggle").checked = true;
+      }
+    };
+  </script>
+
+</body>
+</html>

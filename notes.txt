@@ -1,0 +1,88 @@
+🟦 market_stocks – Master List of Available Stocks
+This table acts as the master list of all stocks currently available in the market for buying or selling.
+
+It includes stock details like:
+
+stock_id
+
+stock_symbol (e.g., AAPL, TSLA)
+
+company_name
+
+available_quantity → current stock units available for trading
+
+price_per_unit → latest trading price
+
+sector → industry category (Tech, Auto, etc.)
+
+📌 Used for:
+
+Showing available stocks to users.
+
+Verifying if a buy/sell request is valid (based on quantity and stock availability).
+
+🟩 transaction_log – Records of User Transactions
+This table logs every buy or sell action made by users.
+
+It includes:
+
+stock_symbol
+
+transaction_type → BUY or SELL
+
+quantity
+
+price_per_unit → price at which transaction was made
+
+total_value → auto-calculated
+
+transaction_date → date of transaction
+
+📌 Used for:
+
+Tracking user activity.
+
+Generating reports or transaction history.
+
+Validating and updating user portfolios.
+
+
+
+
+
+
+
+
+
+
+✅ Included Functions
+Market Stocks
+getAllStocks: Fetch all market stocks
+
+getMarketStockById: Get single stock by stock_id
+
+createMarketStock: Add new stock to market_stocks
+
+Transactions
+getTransactions: Get all transactions
+
+getTransactionById: Get single transaction by transaction_id
+
+Trading
+buyStock: Buy stock (updates market and logs transaction)
+
+sellStock: Sell stock (updates market and logs transaction)
+
+
+
+Postman Testing routes
+
+| Method | Endpoint                       | Description             |
+| ------ | ------------------------------ | ----------------------- |
+| GET    | `/api/stocks/`                 | List all market stocks  |
+| GET    | `/api/stocks/1`                | Get stock by `stock_id` |
+| POST   | `/api/stocks/`                 | Add new stock           |
+| PUT    | `/api/stocks/buy`              | Buy stock               |
+| PUT    | `/api/stocks/sell`             | Sell stock              |
+| GET    | `/api/transactions/all` | View all transactions   |
+| GET    | `/api/transactions/2`   | Get transaction by ID   |

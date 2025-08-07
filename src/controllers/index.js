@@ -1,172 +1,437 @@
+
 const mysql = require('mysql2/promise');
 const { connectToDatabase } = require('../config/database');
 
-class IndexController {
-    constructor() {
-        // this.db = null;
-        this.initDB();
+// ================== MARKET STOCK OPERATIONS ==================
+
+// Fetch all available market stocks
+const getAllStocks = async (req, res) => {
+  try {
+    const connection = await connectToDatabase();
+    const [rows] = await connection.query('SELECT * FROM market_stocks');
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch stocks', details: err.message });
+  }
+};
+
+// Get item from market_stocks by stock_id
+const getMarketStockById = async (req, res) => {
+  const { stock_id } = req.params;
+  try {
+    const connection = await connectToDatabase();
+    const [results] = await connection.query('SELECT * FROM market_stocks WHERE stock_id = ?', [stock_id]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Stock not found' });
     }
 
-    async initDB() {
-        try {
-            this.db = await connectToDatabase();
-            console.log('Database initialized');
-        } catch (err) {
-            console.error('Error initializing database:', err);
-        }
+    res.status(200).json(results[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+};
+
+
+const getMarketStockBySymbol = async (req, res) => {
+  const { stock_symbol } = req.params;
+
+  try {
+    const connection = await connectToDatabase();
+    const [results] = await connection.query(
+      'SELECT * FROM market_stocks WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Stock not found' });
     }
 
-    async getStocks(req, res) {
-        try {
-            const sql = 'SELECT * FROM stock_details';
-            const [results] = await this.db.query(sql);
-            res.json(results);
-        } catch (err) {
-            console.error('Error fetching stock data:', err);
-            res.status(500).send('Error fetching stock data');
-        }
+    res.status(200).json(results[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+};
+
+
+// Create a new item in market_stocks
+const createMarketStock = async (req, res) => {
+  const {
+    stock_id,
+    stock_symbol,
+    company_name,
+    available_quantity,
+    price_per_unit,
+    sector
+  } = req.body;
+
+  try {
+    const connection = await connectToDatabase();
+
+    const query = `
+      INSERT INTO market_stocks 
+      (stock_id, stock_symbol, company_name, available_quantity, price_per_unit, sector) 
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    await connection.query(query, [stock_id, stock_symbol, company_name, available_quantity, price_per_unit, sector]);
+    res.status(201).json({ message: 'Stock added successfully', insertedId: stock_id });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to insert', details: err.message });
+  }
+};
+
+// ================== TRANSACTION LOG ==================
+
+// Get all transaction history
+const getTransactions = async (req, res) => {
+  try {
+    const connection = await connectToDatabase();
+    const [rows] = await connection.query('SELECT * FROM transaction_log ORDER BY transaction_date DESC');
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch transactions', details: err.message });
+  }
+};
+
+//get User owned Stocks
+const getUserStocks = async (req, res) => {
+  try {
+    const connection = await connectToDatabase();
+    const [rows] = await connection.query('SELECT * FROM user_portfolio ORDER BY stock_symbol');
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user portfolio', details: err.message });
+  }
+};
+
+
+// Get transaction by ID
+const getTransactionById = async (req, res) => {
+  const { transaction_id } = req.params;
+
+  try {
+    const connection = await connectToDatabase();
+    const [results] = await connection.query('SELECT * FROM transaction_log WHERE transaction_id = ?', [transaction_id]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    async createStock(req, res) {
-        const {
-            user_id,
-            username,
-            stock_symbol,
-            stock_company_name,
-            transaction_type,
-            quantity,
-            price,
-            transaction_date,
-            sector
-        } = req.body;
+    res.status(200).json(results[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+};
 
-        // Input validation
-        if (
-            !user_id ||
-            !username ||
-            !stock_symbol ||
-            !stock_company_name ||
-            !transaction_type ||
-            !quantity ||
-            !price ||
-            !transaction_date
-        ) {
-            return res.status(400).send('Invalid input: All fields are required except sector');
-        }
+// ================== BUY / SELL ==================
 
-        console.log('Creating stock:', {
-            user_id,
-            username,
-            stock_symbol,
-            stock_company_name,
-            transaction_type,
-            quantity,
-            price,
-            transaction_date,
-            sector
-        });
+// Buy stock
+// const buyStock = async (req, res) => {
+//   const { stock_symbol, quantity } = req.body;
+//   const qty = parseInt(quantity);
 
-        try {
-            const sql = `
-                INSERT INTO stock_details (
-                    user_id, username, stock_symbol, stock_company_name, transaction_type,
-                    quantity, price, transaction_date, sector
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            await this.db.query(sql, [
-                user_id,
-                username,
-                stock_symbol,
-                stock_company_name,
-                transaction_type,
-                quantity,
-                price,
-                transaction_date,
-                sector || null // Allow sector to be optional
-            ]);
-            res.json({ message: 'Stock created successfully' });
-        } catch (err) {
-            console.error('Error creating stock:', err);
-            res.status(500).send('Error creating stock');
-        }
-    }  
-    async buyStock(req, res) {
-        const { user_id, stock_symbol, quantity } = req.body;
-      
-        if (!user_id || !stock_symbol || !quantity || quantity <= 0) {
-          return res.status(400).json({ error: 'User ID, Stock Symbol, and Quantity are required and must be valid.' });
-        }
-      
-        try {
-          // Check if record exists
-          const [rows] = await this.db.query(
-            'SELECT * FROM stock_details WHERE user_id = ? AND stock_symbol = ?',
-            [user_id, stock_symbol]
-          );
-      
-          if (rows.length === 0) {
-            return res.status(404).json({ error: 'No matching stock record found for this user.' });
-          }
-      
-          const current = rows[0];
-          const newQuantity = current.quantity + quantity;
-      
-          // Calculate new average price
-          const newTotalValue = (current.quantity * current.price) + (quantity * current.price); // same price for simplicity
-          const newAveragePrice = newTotalValue / newQuantity;
-      
-          await this.db.query(
-            'UPDATE stock_details SET quantity = ?, price = ? WHERE user_id = ? AND stock_symbol = ?',
-            [newQuantity, newAveragePrice, user_id, stock_symbol]
-          );
-      
-          res.json({ message: `Bought ${quantity} more of ${stock_symbol}. Quantity updated to ${newQuantity}.` });
-        } catch (err) {
-          console.error('Buy error:', err);
-          res.status(500).json({ error: 'Failed to process buy operation.' });
-        }
+//   if (!stock_symbol || !qty || qty <= 0) {
+//     return res.status(400).json({ error: 'Invalid input' });
+//   }
+
+//   try {
+//     const connection = await connectToDatabase();
+
+//     // 1. Check if stock exists in market_stocks
+//     const [stockRows] = await connection.query(
+//       'SELECT * FROM market_stocks WHERE stock_symbol = ?',
+//       [stock_symbol]
+//     );
+
+//     if (stockRows.length === 0) {
+//       return res.status(404).json({ error: 'Stock not found in market' });
+//     }
+
+//     const stock = stockRows[0];
+
+//     // 2. Check if enough quantity is available
+//     if (qty > stock.available_quantity) {
+//       return res.status(400).json({ error: 'Requested quantity not available' });
+//     }
+
+//     const newMarketQty = stock.available_quantity - qty;
+
+//     // 3. Update market_stocks
+//     await connection.query(
+//       'UPDATE market_stocks SET available_quantity = ? WHERE stock_symbol = ?',
+//       [newMarketQty, stock_symbol]
+//     );
+
+//     // 4. Check if stock already exists in user_portfolio
+//     const [userRows] = await connection.query(
+//       'SELECT * FROM user_portfolio WHERE stock_symbol = ?',
+//       [stock_symbol]
+//     );
+
+//     if (userRows.length === 0) {
+//       // Insert new row if stock doesn't exist
+//       await connection.query(
+//         'INSERT INTO user_portfolio (stock_symbol, quantity) VALUES (?, ?)',
+//         [stock_symbol, qty]
+//       );
+//     } else {
+//       // Update quantity if stock already exists
+//       const existingQty = userRows[0].quantity;
+//       const updatedQty = existingQty + qty;
+
+//       await connection.query(
+//         'UPDATE user_portfolio SET quantity = ? WHERE stock_symbol = ?',
+//         [updatedQty, stock_symbol]
+//       );
+//     }
+
+//     // 5. Insert into transaction_log
+//     await connection.query(
+//       'INSERT INTO transaction_log (stock_symbol, transaction_type, quantity, price_per_unit) VALUES (?, "BUY", ?, ?)',
+//       [stock_symbol, qty, stock.price_per_unit]
+//     );
+
+//     res.status(200).json({ message: 'Stock bought successfully' });
+
+//   } catch (err) {
+//     res.status(500).json({ error: 'Buy transaction failed', details: err.message });
+//   }
+// };
+const buyStock = async (req, res) => {
+  const { stock_symbol, quantity } = req.body;
+  const qty = parseInt(quantity);
+
+  if (!stock_symbol || isNaN(qty)) {
+    return res.status(400).json({ error: 'Invalid input: Missing or malformed data' });
+  }
+
+  if (qty <= 0) {
+    return res.status(400).json({ error: 'Invalid quantity. Must be greater than 0.' });
+  }
+
+  try {
+    const connection = await connectToDatabase();
+
+    // 1. Check if stock exists in market_stocks
+    const [stockRows] = await connection.query(
+      'SELECT * FROM market_stocks WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (stockRows.length === 0) {
+      return res.status(404).json({ error: 'Stock not found in market' });
     }
 
-      async sellStock(req, res) {
-        const { user_id, stock_symbol, quantity } = req.body;
-      
-        try {
-          const [[item]] = await this.db.query(
-            `SELECT * FROM stock_details WHERE user_id = ? AND stock_symbol = ?`,
-            [user_id, stock_symbol]
-          );
-      
-          if (!item) {
-            return res.status(404).json({ error: 'Stock not found for user.' });
-          }
-      
-          const currentQty = item.quantity;
-          const currentTotal = item.price; // total value stored
-      
-          if (quantity > currentQty) {
-            return res.status(400).json({ error: 'Quantity of stock is unavailable.' });
-          } else if (quantity === currentQty) {
-            // Delete row if quantity matches
-            await this.db.query(`DELETE FROM stock_details WHERE user_id = ?`, [item.user_id]);
-            return res.json({ message: 'All stocks sold. Entry removed.' });
-          } else {
-            const newQty = currentQty - quantity;
-            const avgPrice = currentTotal / currentQty;
-            const newTotal = newQty * avgPrice;
-      
-            await this.db.query(
-              `UPDATE stock_details SET quantity = ?, price = ? WHERE user_id = ?`,
-              [newQty, newTotal, item.user_id]
-            );
-      
-            return res.json({ message: 'Stock sold successfully.' });
-          }
-        } catch (err) {
-          console.error('Sell error:', err);
-          res.status(500).json({ error: 'Sell operation failed.' });
-        }
-      }
+    const stock = stockRows[0];
 
-}
+    // 2. Check if enough quantity is available
+    if (qty > stock.available_quantity) {
+      return res.status(400).json({ error: 'Quantity unavailable. Only ' + stock.available_quantity + ' left in market.' });
+    }
 
-module.exports = IndexController;
+    const newMarketQty = stock.available_quantity - qty;
+
+    // 3. Update market_stocks
+    await connection.query(
+      'UPDATE market_stocks SET available_quantity = ? WHERE stock_symbol = ?',
+      [newMarketQty, stock_symbol]
+    );
+
+    // 4. Check if stock already exists in user_portfolio
+    const [userRows] = await connection.query(
+      'SELECT * FROM user_portfolio WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (userRows.length === 0) {
+      // Insert new row if stock doesn't exist
+      await connection.query(
+        'INSERT INTO user_portfolio (stock_symbol, quantity) VALUES (?, ?)',
+        [stock_symbol, qty]
+      );
+    } else {
+      // Update quantity if stock already exists
+      const existingQty = userRows[0].quantity;
+      const updatedQty = existingQty + qty;
+
+      await connection.query(
+        'UPDATE user_portfolio SET quantity = ? WHERE stock_symbol = ?',
+        [updatedQty, stock_symbol]
+      );
+    }
+
+    // 5. Insert into transaction_log
+    await connection.query(
+      'INSERT INTO transaction_log (stock_symbol, transaction_type, quantity, price_per_unit) VALUES (?, "BUY", ?, ?)',
+      [stock_symbol, qty, stock.price_per_unit]
+    );
+
+    res.status(200).json({ message: `Stock bought successfully. (${qty} units of ${stock_symbol})` });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Buy transaction failed', details: err.message });
+  }
+};
+
+
+
+
+
+// Sell stock
+/*const sellStock = async (req, res) => {
+  const { stock_symbol, quantity } = req.body;
+  const qty = parseInt(quantity);
+
+  if (!stock_symbol || !qty || qty <= 0) {
+    return res.status(400).json({ error: 'Invalid input' });
+  }
+
+  try {
+    const connection = await connectToDatabase();
+
+    // 1. Check user portfolio for stock and sufficient quantity
+    const [userRows] = await connection.query(
+      'SELECT * FROM user_portfolio WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (userRows.length === 0 || userRows[0].quantity < qty) {
+      return res.status(400).json({ error: 'Not enough stock to sell' });
+    }
+
+    const userQty = userRows[0].quantity;
+    const newUserQty = userQty - qty;
+
+    // 2. Update or delete user_portfolio
+    if (newUserQty === 0) {
+      await connection.query(
+        'DELETE FROM user_portfolio WHERE stock_symbol = ?',
+        [stock_symbol]
+      );
+    } else {
+      await connection.query(
+        'UPDATE user_portfolio SET quantity = ? WHERE stock_symbol = ?',
+        [newUserQty, stock_symbol]
+      );
+    }
+
+    // 3. Update market_stocks (increase quantity)
+    const [marketRows] = await connection.query(
+      'SELECT * FROM market_stocks WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (marketRows.length === 0) {
+      return res.status(404).json({ error: 'Market stock not found' });
+    }
+
+    const marketQty = marketRows[0].available_quantity;
+    const updatedMarketQty = marketQty + qty;
+
+    await connection.query(
+      'UPDATE market_stocks SET available_quantity = ? WHERE stock_symbol = ?',
+      [updatedMarketQty, stock_symbol]
+    );
+
+    // 4. Log transaction
+    await connection.query(
+      'INSERT INTO transaction_log (stock_symbol, transaction_type, quantity, price_per_unit) VALUES (?, "SELL", ?, ?)',
+      [stock_symbol, qty, marketRows[0].price_per_unit]
+    );
+
+    res.status(200).json({ message: 'Stock sold successfully' });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Sell transaction failed', details: err.message });
+  }
+};
+*/
+
+const sellStock = async (req, res) => {
+  const { stock_symbol, quantity } = req.body;
+  const qty = parseInt(quantity);
+
+  if (!stock_symbol || isNaN(qty) || qty <= 0) {
+    return res.status(400).json({ error: 'Invalid input' });
+  }
+
+  try {
+    const connection = await connectToDatabase();
+
+    // 1. Check user portfolio
+    const [userRows] = await connection.query(
+      'SELECT * FROM user_portfolio WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(400).json({ error: 'Stock not found in user portfolio' });
+    }
+
+    const userQty = userRows[0].quantity;
+
+    if (qty > userQty) {
+      return res.status(400).json({ error: `Not enough stock to sell. You only have ${userQty}` });
+    }
+
+    const newUserQty = userQty - qty;
+
+    // 2. Update or delete user_portfolio
+    if (newUserQty === 0) {
+      await connection.query(
+        'DELETE FROM user_portfolio WHERE stock_symbol = ?',
+        [stock_symbol]
+      );
+    } else {
+      await connection.query(
+        'UPDATE user_portfolio SET quantity = ? WHERE stock_symbol = ?',
+        [newUserQty, stock_symbol]
+      );
+    }
+
+    // 3. Update market_stocks (increase available_quantity)
+    const [marketRows] = await connection.query(
+      'SELECT * FROM market_stocks WHERE stock_symbol = ?',
+      [stock_symbol]
+    );
+
+    if (marketRows.length === 0) {
+      return res.status(404).json({ error: 'Market stock not found' });
+    }
+
+    const updatedMarketQty = marketRows[0].available_quantity + qty;
+
+    await connection.query(
+      'UPDATE market_stocks SET available_quantity = ? WHERE stock_symbol = ?',
+      [updatedMarketQty, stock_symbol]
+    );
+
+    // 4. Log transaction
+    await connection.query(
+      'INSERT INTO transaction_log (stock_symbol, transaction_type, quantity, price_per_unit) VALUES (?, "SELL", ?, ?)',
+      [stock_symbol, qty, marketRows[0].price_per_unit]
+    );
+
+    res.status(200).json({ message: 'Stock sold successfully' });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Sell transaction failed', details: err.message });
+  }
+};
+
+
+
+// ================== EXPORT ==================
+
+module.exports = {
+  getAllStocks,
+  getMarketStockById,
+  createMarketStock,
+  getTransactions,
+  getTransactionById,
+  buyStock,
+  sellStock,
+  getUserStocks,
+  getMarketStockBySymbol
+};

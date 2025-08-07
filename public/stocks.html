@@ -144,6 +144,10 @@
     }
   </style>
 </head>
+
+
+ 
+
 <body>
 
   <!-- 🌙 Dark Mode Toggle -->
@@ -154,24 +158,22 @@
     </label>
   </div>
 
-  <h1>📊 My Stocks</h1>
+  <h1>📈 Transaction Log</h1>
 
   <div class="table-container">
-    <table id="stocks-table">
+    <table id="transaction-table">
       <thead>
         <tr>
-          <th>User ID</th>
-          <th>Username</th>
+          <th>Transaction ID</th>
           <th>Stock Symbol</th>
-          <th>Company</th>
           <th>Type</th>
-          <th>Qty</th>
-          <th>Price</th>
+          <th>Quantity</th>
+          <th>Price/Unit</th>
+          <th>Total Value</th>
           <th>Date</th>
-          <th>Sector</th>
         </tr>
       </thead>
-      <tbody id="stocks-body"></tbody>
+      <tbody id="transaction-body"></tbody>
     </table>
   </div>
 
@@ -183,33 +185,28 @@
   <button class="floating-fetch" onclick="location.reload()">🔁 Refresh Stocks</button>
 
   <script>
-    fetch('http://localhost:3000/api/stocks')
+    // ✅ Fetch and display transaction log data
+    fetch('http://localhost:4000/api/transactions/all') // <-- Update this to your correct API route
       .then(res => res.json())
       .then(data => {
-        const tbody = document.getElementById('stocks-body');
-        let totalValue = 0;
+        const tbody = document.getElementById('transaction-body');
 
-        data.forEach(s => {
+        data.forEach(txn => {
           const row = document.createElement('tr');
 
           const typeClass = s.transaction_type === 'BUY' ? 'BUY' : 'SELL';
 
           row.innerHTML = `
-            <td>${s.user_id}</td>
-            <td>${s.username}</td>
-            <td>${s.stock_symbol}</td>
-            <td>${s.stock_company_name}</td>
-            <td><span class="stock-tag ${typeClass}">${s.transaction_type}</span></td>
-            <td>${s.quantity}</td>
-            <td>₹${s.price}</td>
-            <td>${s.transaction_date}</td>
-            <td>${s.sector || '-'}</td>
+            <td>${txn.transaction_id}</td>
+            <td>${txn.stock_symbol}</td>
+            <td>${txn.transaction_type}</td>
+            <td>${txn.quantity}</td>
+            <td>${txn.price_per_unit}</td>
+            <td>${txn.total_value}</td>
+            <td>${txn.transaction_date}</td>
           `;
           tbody.appendChild(row);
-          totalValue += s.price * s.quantity;
         });
-
-        document.getElementById('total-value').textContent = totalValue.toFixed(2);
       });
 
     // Dark mode logic
@@ -227,4 +224,5 @@
   </script>
 
 </body>
+
 </html>

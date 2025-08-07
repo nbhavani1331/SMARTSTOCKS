@@ -5,165 +5,236 @@
   <title>User Portfolio</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
-      color: #000;
-      margin: 0;
-      padding: 20px;
-      transition: background-color 0.5s ease, color 0.5s ease;
+    :root {
+      --bg-light: #f4f0fb;
+      --bg-lighter: #faf7ff;
+      --text-color: #222;
+      --header-bg: #6a0dad;
+      --row-alt: #eae0f9;
+      --row-even: #ffffff;
+      --primary-violet: #8e44ad;
+      --hover-violet: #ab74d4;
     }
 
-    h1 {
-      color: #0077cc;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    header {
+      background-color: var(--header-bg);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+    }
+
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: var(--hover-violet);
+    }
+
+    .toggle-container {
+      margin-left: 20px;
+      display: flex;
+      align-items: center;
+      color: white;
+    }
+
+    #darkModeToggle {
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 8px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      background-color: var(--bg-lighter);
+      color: var(--text-color);
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     th, td {
-      border: 1px solid #ccc;
       padding: 12px;
       text-align: center;
+      border: 1px solid #ddd;
     }
 
     th {
-      background-color: #cce5ff;
-      color: #003366;
+      background-color: var(--primary-violet);
+      color: white;
     }
 
-    .dark-mode {
-      background-color: #1c1c1c;
-      color: #f0f0f0;
+    tbody tr:nth-child(even) {
+      background-color: var(--row-even);
     }
 
-    .dark-mode table, .dark-mode th, .dark-mode td {
-      background-color: #2a2a2a;
-      color: #f0f0f0;
-    }
-
-    .dark-mode th {
-      background-color: #444;
-      color: #fff;
-    }
-
-    .dark-mode .table-container {
-      background-color: #2a2a2a;
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    #darkModeToggleContainer {
-      text-align: right;
-      padding: 10px 20px;
-    }
-
-    input[type="checkbox"] {
-      cursor: pointer;
+    tbody tr:nth-child(odd) {
+      background-color: var(--row-alt);
     }
 
     canvas {
-      margin-top: 40px;
+      margin-top: 30px;
       max-width: 100%;
+      height: 300px !important;
+    }
+
+    .btn-refresh {
+      background-color: var(--primary-violet);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .btn-refresh:hover {
+      background-color: var(--hover-violet);
     }
   </style>
 </head>
 
 <body>
-  <!-- 🌙 Dark Mode Toggle -->
-  <div id="darkModeToggleContainer">
-    <label style="font-weight: bold;" title="Toggle light/dark mode">
-      <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
-      🌙 Dark Mode
-    </label>
+
+  <header>
+    <h1>📊 My Stocks</h1>
+    <nav>
+      <a href="index.html">🏠 Home</a>
+      <a href="market_stocks.html">💹 Buy/Sell Stocks</a>
+      <div class="toggle-container">🌙
+        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Stock Symbol</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody id="portfolio-body"></tbody>
+      </table>
+    </div>
+
+    <canvas id="portfolioChart"></canvas>
+
+    <button class="btn-refresh" onclick="refreshPortfolio()">🔄 Refresh</button>
   </div>
-
-  <h1>📊 User Portfolio</h1>
-
-  <!-- Table Display -->
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Stock Symbol</th>
-          <th>Quantity</th>
-        </tr>
-      </thead>
-      <tbody id="portfolio-body"></tbody>
-    </table>
-  </div>
-
-  <!-- Chart Display -->
-  <canvas id="portfolioChart"></canvas>
 
   <script>
-    // ✅ Fetch and display user portfolio
-    fetch('http://localhost:4000/api/getUserStocks')
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById('portfolio-body');
-        const labels = [];
-        const quantities = [];
+    let chart;
 
-        data.forEach(stock => {
-          // Add to table
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${stock.stock_symbol}</td>
-            <td>${stock.quantity}</td>
-          `;
-          tbody.appendChild(row);
+    function fetchPortfolio() {
+      fetch('http://localhost:4000/api/getUserStocks')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('portfolio-body');
+          tbody.innerHTML = '';
+          const labels = [];
+          const quantities = [];
 
-          // Add to chart data
-          labels.push(stock.stock_symbol);
-          quantities.push(stock.quantity);
+          data.forEach(stock => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${stock.stock_symbol}</td>
+              <td>${stock.quantity}</td>
+            `;
+            tbody.appendChild(row);
+
+            labels.push(stock.stock_symbol);
+            quantities.push(stock.quantity);
+          });
+
+          drawChart(labels, quantities);
+        })
+        .catch(err => {
+          alert("Failed to fetch portfolio: " + err.message);
         });
-
-        // Draw chart
-        const ctx = document.getElementById('portfolioChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Quantity Owned',
-              data: quantities,
-              backgroundColor: '#3399ff',
-              borderColor: '#0077cc',
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      })
-      .catch(err => {
-        alert("Failed to fetch portfolio: " + err.message);
-      });
-
-    // ✅ Dark Mode Toggle
-    function toggleDarkMode() {
-      const dark = document.body.classList.toggle("dark-mode");
-      localStorage.setItem("dark-mode", dark);
     }
 
-    // ✅ Load dark mode on page load if enabled
+    function drawChart(labels, data) {
+      const ctx = document.getElementById('portfolioChart').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Quantity Owned',
+            data: data,
+            backgroundColor: '#ab74d4',
+            borderColor: '#8e44ad',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle("dark-mode");
+      localStorage.setItem("dark-mode", isDark);
+    }
+
+    function refreshPortfolio() {
+      fetchPortfolio();
+    }
+
     window.onload = function () {
       if (localStorage.getItem("dark-mode") === "true") {
         document.body.classList.add("dark-mode");
         document.getElementById("darkModeToggle").checked = true;
       }
+      fetchPortfolio();
     };
   </script>
 

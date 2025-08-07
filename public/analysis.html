@@ -15,22 +15,29 @@
 
     nav {
       background-color: #7f1ea8;
-      padding: 15px;
+      padding: 15px 30px;
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
+      align-items: center;
       color: white;
     }
 
-    nav a {
+    .nav-left {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .nav-right a {
       color: white;
       text-decoration: none;
       font-weight: bold;
       padding: 8px 15px;
+      margin-left: 10px;
       border-radius: 5px;
       transition: background 0.3s;
     }
 
-    nav a:hover {
+    .nav-right a:hover {
       background-color: #7B5EFF;
     }
 
@@ -55,32 +62,86 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       width: 400px;
       height: 400px;
+      cursor: pointer;
     }
 
     canvas {
       width: 100% !important;
       height: 100% !important;
     }
+
+    /* Modal for chart zoom */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 80vw;
+      max-height: 80vh;
+    }
+
+    .modal canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 28px;
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <nav>
-    <a href="index.html">Home</a>
-    <a href="index.html#stock-form">Add Stock</a>
-    <a href="stocks.html">Fetch Data</a>
-    <a href="analysis.html">Analysis</a>
-    <a href="faq.html">FAQ</a>
+    <div class="nav-left">Analysis</div>
+    <div class="nav-right">
+      <a href="index.html">Home</a>
+      <a href="user_stocks.html">View Stocks</a>
+      <a href="stocks.html">Transactions</a>
+      <a href="guide.html">Guide</a>
+    </div>
   </nav>
 
   <h1>📊 SMARTSTOCKS Live Analysis</h1>
 
   <div class="chart-container">
-    <div class="chart-box">
+    <div class="chart-box" onclick="openModal('sectorChartModal')">
       <canvas id="sectorChart"></canvas>
     </div>
-    <div class="chart-box">
+    <div class="chart-box" onclick="openModal('transactionChartModal')">
       <canvas id="transactionTypeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Modal Containers -->
+  <div id="sectorChartModal" class="modal">
+    <div class="close-btn" onclick="closeModal('sectorChartModal')">&times;</div>
+    <div class="modal-content">
+      <canvas id="sectorChartLarge"></canvas>
+    </div>
+  </div>
+
+  <div id="transactionChartModal" class="modal">
+    <div class="close-btn" onclick="closeModal('transactionChartModal')">&times;</div>
+    <div class="modal-content">
+      <canvas id="transactionChartLarge"></canvas>
     </div>
   </div>
 
@@ -88,12 +149,11 @@
     const sectorAPI = 'http://localhost:4000/api/stocks/';
     const transactionAPI = 'http://localhost:4000/api/transactions/all';
 
-    // Fetch and plot sector chart
+    // Sector Chart
     fetch(sectorAPI)
       .then(res => res.json())
       .then(data => {
         const sectorCount = {};
-
         data.forEach(stock => {
           const sector = stock.sector || 'Unknown';
           sectorCount[sector] = (sectorCount[sector] || 0) + 1;
@@ -102,7 +162,7 @@
         const labels = Object.keys(sectorCount);
         const values = Object.values(sectorCount);
 
-        new Chart(document.getElementById('sectorChart'), {
+        const config = {
           type: 'pie',
           data: {
             labels,
@@ -119,19 +179,17 @@
               }
             }
           }
-        });
-      })
-      .catch(err => {
-        console.error("Sector Chart Error:", err);
-        alert("Failed to load sector chart data.");
+        };
+
+        new Chart(document.getElementById('sectorChart'), config);
+        new Chart(document.getElementById('sectorChartLarge'), config);
       });
 
-    // Fetch and plot transaction type chart
+    // Transaction Chart
     fetch(transactionAPI)
       .then(res => res.json())
       .then(data => {
         const transactionCount = { BUY: 0, SELL: 0 };
-
         data.forEach(tx => {
           const type = (tx.transaction_type || '').toUpperCase();
           if (transactionCount[type] !== undefined) {
@@ -142,7 +200,7 @@
         const labels = Object.keys(transactionCount);
         const values = Object.values(transactionCount);
 
-        new Chart(document.getElementById('transactionTypeChart'), {
+        const config = {
           type: 'doughnut',
           data: {
             labels,
@@ -159,12 +217,29 @@
               }
             }
           }
-        });
-      })
-      .catch(err => {
-        console.error("Transaction Chart Error:", err);
-        alert("Failed to load transaction chart data.");
+        };
+
+        new Chart(document.getElementById('transactionTypeChart'), config);
+        new Chart(document.getElementById('transactionChartLarge'), config);
       });
+
+    // Modal Handling
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll(".modal");
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+    };
   </script>
 </body>
 </html>

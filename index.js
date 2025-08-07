@@ -20,13 +20,15 @@ app.use(cors());                              // Enable CORS
 app.use(express.json());                      // Parse JSON requests
 setRoutes(app);
 
-// Serve static files from the "public" folder
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Default route for homepage
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'welcome.html'));
 });
+
+// Serve static files from the "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Connect to DB and start the server
 connectToDatabase()

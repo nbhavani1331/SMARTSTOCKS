@@ -4,153 +4,160 @@
 <head>
   <meta charset="UTF-8" />
   <title>Market Mood Index</title>
-  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      margin: 0;
-      background-color: #f3e8ff;
-      font-family: 'Segoe UI', sans-serif;
-      background-image: url('https://www.transparenttextures.com/patterns/clean-gray-paper.png');
+    body { font-family: 'Segoe UI'; background: #121212; color: #e0e0e0; margin: 0; padding: 20px; overflow-x: hidden; }
+    h1 { text-align: center; font-size: 36px; color: #00ff99; margin-bottom: 10px; }
+    #tweetMood { font-size: 42px; text-align: center; margin: 15px auto; color: #00e676; font-weight: bold; }
+    .container { max-width: 900px; margin: auto; background: #1f1f30; padding: 28px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.7); }
+    .weekdays { display: flex; justify-content: space-between; margin: 24px 0; }
+    .day { flex: 1; margin: 0 4px; padding: 12px 0; background: #333; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; color: #ddd; transition:0.3s; }
+    .day:hover { background: #444; transform: scale(1.05); }
+    .today { background: #90ee90 !important; color: black; border: 2px solid #00c853; }
+    canvas { margin-top: 32px; }
+    .floating { 
+      position: absolute;
+      animation: floatEmoji 6s infinite ease-in-out;
+      opacity: 0.85;
+      user-select:none;
+      pointer-events:none;
+      mix-blend-mode:screen;
+      font-size: 44px;
+      z-index:999;
     }
-
-    .mmi-page-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      text-align: center;
+    @keyframes floatEmoji {
+      0% { transform: translateY(100vh) scale(0.5); opacity:0; }
+      50% { opacity:1; }
+      100% { transform: translateY(-20vh) scale(1.4); opacity:0; }
     }
-
-    .mmi-title {
-      font-size: 36px;
-      color: #6a0dad;
-      margin-bottom: 20px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .mmi-label {
-      font-size: 22px;
-      font-weight: bold;
-      color: #a64dff;
-      margin-top: 30px;
-    }
-
-    .mmi-bar-graph {
-      display: flex;
-      justify-content: space-around;
-      align-items: flex-end;
-      height: 300px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 30px;
-      margin-top: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .bar {
-      width: 60px;
-      background-color: #a855f7;
-      color: white;
-      text-align: center;
-      border-radius: 10px 10px 0 0;
-      padding-top: 10px;
-      font-weight: bold;
-      position: relative;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .bar span {
-      display: block;
-      font-size: 24px;
-      margin-top: 10px;
-    }
-
-    .bar:hover {
-      background-color: #7e22ce;
-      transform: scaleY(1.1);
-    }
-
-    .bar.selected {
-      background-color: #ff5722;
-      border: 3px solid #222;
-    }
-
-    .bar.weekend {
-      width: 100%;
-      height: 100%;
-      background-color: #ccc;
-      color: #444;
-      font-size: 1.5rem;
-      text-align: center;
-      padding-top: 70px;
-      border-radius: 8px;
+    #popup {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00e676;
+      color: black;
+      padding: 16px 26px;
+      border-radius: 12px;
+      font-size: 18px;
+      display:none;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.7);
+      z-index:1000;
     }
   </style>
 </head>
 <body>
-
-  <div class="mmi-page-container">
-    <h1 class="mmi-title">📊 Weekly Market Mood Index</h1>
-
-    <div class="mmi-label">
-      <strong>Select a day to view mood</strong>
-    </div>
-
-    <div id="mmi-graph" class="mmi-bar-graph">
-      
-    </div>
+  <h1>📊 Market Mood Index</h1>
+  <div id="tweetMood">⏳</div>
+  <div class="container">
+    <div class="weekdays" id="weekdays"></div>
+    <canvas id="moodChart"></canvas>
   </div>
+  <div id="popup"></div>
 
   <script>
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-    const moods = [
-      { label: "Extreme Fear", height: 30, emoji: "😨" },
-      { label: "Fear", height: 45, emoji: "😟" },
-      { label: "Neutral", height: 60, emoji: "😐" },
-      { label: "Greed", height: 75, emoji: "😊" },
-      { label: "Extreme Greed", height: 90, emoji: "😎" }
-    ];
+    const apiURL = 'https://api.alternative.me/fng/?limit=60';
+    const moodIcons = {
+      "Extreme Fear": "😰", "Fear": "😟", "Neutral": "😐",
+      "Greed": "😄", "Extreme Greed": "😎"
+    };
 
-    const todayIndex = new Date().getDay();
-    const graph = document.getElementById("mmi-graph");
-    const moodLabel = document.querySelector(".mmi-label strong");
+    async function init() {
+      try {
+        const resp = await fetch(apiURL);
+        const raw = await resp.json();
+        let arr = raw.data.reverse();
 
-    function showMood(dayIndex) {
-      const mood = moods[dayIndex - 1];
-      if (!mood) return;
+        // Filter out weekends
+        arr = arr.filter(d => {
+          const day = new Date(d.timestamp * 1000).getDay();
+          return day !== 0 && day !== 6;
+        });
 
-      moodLabel.innerText = `${mood.label} Zone (${days[dayIndex]})`;
+        // Only get last 7 valid weekdays
+        arr = arr.slice(-7);
 
-      document.querySelectorAll('.bar').forEach(bar => bar.classList.remove('selected'));
-      const bar = document.querySelector(`.bar[data-day="${dayIndex}"]`);
-      if (bar) bar.classList.add('selected');
-    }
+        const labels = arr.map(d => new Date(d.timestamp * 1000).toLocaleDateString('en-US', { weekday: 'short' }));
+        const scores = arr.map(d => +d.value);
+        const cls = arr.map(d => d.value_classification);
 
-    if (todayIndex === 0 || todayIndex === 6) {
-      graph.innerHTML = `<div class="bar weekend">Weekend</div>`;
-      moodLabel.innerText = "Market Closed (Weekend)";
-    } else {
-      for (let i = 1; i <= 5; i++) {
-        const mood = moods[i - 1];
-        const day = days[i];
-
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        bar.style.height = `${mood.height}%`;
-        bar.setAttribute("data-day", i);
-        bar.innerHTML = `${day}<br><span>${mood.emoji}</span>`;
-
-        if (todayIndex === i) {
-          bar.classList.add("selected");
-          moodLabel.innerText = `${mood.label} Zone (Today - ${day})`;
-        }
-
-        bar.addEventListener('click', () => showMood(i));
-        graph.appendChild(bar);
+        renderWeekdays(labels, cls, scores);
+        renderChart(labels, scores, cls);
+        showMoot(cls[cls.length-1], scores[scores.length-1]);
+        spawnEmojis(cls);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('tweetMood').innerText = "⚠️ Error loading mood";
       }
     }
-  </script>
 
+    function renderWeekdays(labels, cls, scores) {
+      const wd = document.getElementById('weekdays');
+      wd.innerHTML = '';
+      labels.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'day';
+        div.innerText = label.toUpperCase();
+        if (i === labels.length - 1) div.classList.add('today');
+        div.onclick = () => showPopup(label, cls[i], scores[i]);
+        wd.appendChild(div);
+      });
+    }
+
+    function renderChart(labels, scores, cls) {
+      new Chart(document.getElementById('moodChart').getContext('2d'), {
+        type:'line',
+        data:{
+          labels,
+          datasets:[{
+            label:"Mood Score",
+            data:scores,
+            fill:true,
+            backgroundColor:'rgba(0,200,83,0.2)',
+            borderColor:'#00c853',
+            tension:0.4,
+            pointBackgroundColor:'#00e676',
+            pointBorderColor:'#00e676',
+            pointRadius:6
+          }]
+        },
+        options:{ responsive:true, plugins:{legend:{display:false}},
+          scales:{
+            y:{min:0,max:100,grid:{color:'#444'}, ticks:{color:'#eee'}},
+            x:{grid:{color:'#444'}, ticks:{color:'#eee'}}
+          }
+        }
+      });
+    }
+
+    function showMoot(mood, score) {
+      const icon = moodIcons[mood] || "📊";
+      document.getElementById('tweetMood').innerText = `Today's Mood: ${icon} ${mood} (${score})`;
+    }
+
+    function showPopup(day, mood, score) {
+      const popup = document.getElementById('popup');
+      const icon = moodIcons[mood] || "";
+      popup.innerText = `${icon} ${day}: ${mood} (${score}/100)`;
+      popup.style.display = 'block';
+      setTimeout(() => popup.style.display = 'none', 2600);
+    }
+
+    function spawnEmojis(cls) {
+      setInterval(() => {
+        const mood = cls[Math.floor(Math.random() * cls.length)];
+        const icon = moodIcons[mood] || "✨";
+        const el = document.createElement('div');
+        el.className = 'floating';
+        el.innerText = icon;
+        el.style.left = Math.random() * 90 + '%';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 6000);
+      }, 500); // Faster spawning
+    }
+
+    init();
+  </script>
 </body>
 </html>
 -->
@@ -160,191 +167,144 @@
 <head>
   <meta charset="UTF-8" />
   <title>Market Mood Index</title>
-  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f3e8ff;
-      background-image: url('https://www.transparenttextures.com/patterns/clean-gray-paper.png');
-      color: #333;
+    body { font-family: 'Segoe UI'; background: #121212; color: #e0e0e0; margin: 0; padding: 20px; overflow-x: hidden; }
+    h1 { text-align: center; font-size: 36px; color: #00ff99; margin-bottom: 10px; }
+    #tweetMood { font-size: 48px; text-align: center; margin: 10px auto; }
+    .container { max-width: 900px; margin: auto; background: #1f1f30; padding: 28px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.7); }
+    .weekdays { display: flex; justify-content: space-between; margin: 24px 0; flex-wrap: wrap; gap: 6px; }
+    .day { flex: 1; min-width: 90px; margin: 0 4px; padding: 12px 0; background: #333; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; color: #ddd; transition:0.3s; }
+    .day:hover { background: #444; transform: scale(1.05); }
+    .today { background: #90ee90 !important; color: black; border: 2px solid #00c853; }
+    canvas { margin-top: 32px; }
+    .floating { position: absolute; animation: floatEmoji 6s infinite ease-in-out; opacity: 0.85; user-select:none; pointer-events:none; font-size: 48px; z-index:999; }
+    @keyframes floatEmoji {
+      0% {transform: translateY(100vh) scale(0.5); opacity:0;}
+      50% {opacity:1;}
+      100% {transform: translateY(-20vh) scale(1.2); opacity:0;}
     }
-
-    .mmi-page-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      text-align: center;
+    #popup {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%);
+      background: #00e676; color: black;
+      padding: 16px 26px; border-radius: 12px;
+      font-size: 18px; display:none;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.7); z-index:1000;
     }
-
-    .mmi-title {
-      font-size: 36px;
-      color: #6a0dad;
-      margin-bottom: 20px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .mmi-label {
-      font-size: 22px;
-      font-weight: bold;
-      color: #a64dff;
-      margin-top: 30px;
-    }
-
-    .mmi-bar-graph {
-      display: flex;
-      justify-content: space-around;
-      align-items: flex-end;
-      height: 300px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 30px;
-      margin-top: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .bar {
-      width: 60px;
-      background-color: #a855f7;
-      color: white;
-      text-align: center;
-      border-radius: 10px 10px 0 0;
-      padding-top: 10px;
-      font-weight: bold;
-      position: relative;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .bar span {
-      display: block;
-      font-size: 24px;
-      margin-top: 10px;
-    }
-
-    .bar:hover {
-      background-color: #7e22ce;
-      transform: scaleY(1.1);
-    }
-
-    .bar.selected {
-      background-color: #ff5722;
-      border: 3px solid #222;
-    }
-
-    @keyframes burst {
-      0% {
-        opacity: 0;
-        transform: translate(0, 0) scale(0.5);
-      }
-      30% {
-        opacity: 1;
-        transform: translate(var(--x), var(--y)) scale(1.3);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(var(--x), var(--y)) scale(0.8);
-      }
-    }
-    
   </style>
 </head>
 <body>
-
-  <div class="mmi-page-container">
-    <h1 class="mmi-title">📊 Weekly Market Mood Index</h1>
-
-    <div class="mmi-label">
-      <strong>Select a day to view mood</strong>
-    </div>
-
-    <div id="mmi-graph" class="mmi-bar-graph">
-      <!-- Bars inserted by JS -->
-    </div>
-
+  <h1>📊 Market Mood Index</h1>
+  <div id="tweetMood">⏳</div>
+  <div class="container">
+    <div class="weekdays" id="weekdays"></div>
+    <canvas id="moodChart"></canvas>
   </div>
+  <div id="popup"></div>
 
   <script>
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const moods = [
-      { label: "Extreme Fear", height: 30, emoji: "😨" },
-      { label: "Fear", height: 45, emoji: "😟" },
-      { label: "Neutral", height: 60, emoji: "😐" },
-      { label: "Greed", height: 75, emoji: "😊" },
-      { label: "Extreme Greed", height: 90, emoji: "😎" }
-    ];
+    const apiURL = 'https://api.alternative.me/fng/?limit=30';
+    const moodIcons = {
+      "Extreme Fear":"😰", "Fear":"😟",
+      "Neutral":"😐", "Greed":"😄", "Extreme Greed":"😎"
+    };
 
-    const todayIndex = new Date().getDay(); // 0 = Sun, 6 = Sat
-    const graph = document.getElementById("mmi-graph");
-    const moodLabel = document.querySelector(".mmi-label strong");
+    async function init() {
+      try {
+        const resp = await fetch(apiURL);
+        const raw = await resp.json();
+        const data = raw.data.reverse();
 
-    function showMood(dayIndex) {
-      const mood = moods[dayIndex - 1];
-      if (!mood) return;
-    
-      moodLabel.innerText = `${mood.label} Zone (${days[dayIndex]})`;
-    
-      document.querySelectorAll('.bar').forEach(bar => bar.classList.remove('selected'));
-      const bar = document.querySelector(`.bar[data-day="${dayIndex}"]`);
-      if (bar) bar.classList.add('selected');
-    
-      // 🎉 Pop large emojis from random spots on screen
-      for (let i = 0; i < 30; i++) {
-        const emoji = document.createElement('div');
-        emoji.innerText = mood.emoji;
-        emoji.style.position = 'fixed';
-        emoji.style.zIndex = 9999;
-        emoji.style.pointerEvents = 'none';
-    
-        // Random start position
-        const startX = Math.random() * window.innerWidth;
-        const startY = Math.random() * window.innerHeight;
-        emoji.style.left = `${startX}px`;
-        emoji.style.top = `${startY}px`;
-    
-        // Random size between 50–80px
-        const size = 50 + Math.random() * 30;
-        emoji.style.fontSize = `${size}px`;
-    
-        // Animate
-        emoji.style.animation = `burst 1.5s ease-out forwards`;
-    
-        // Random direction
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 80 + Math.random() * 150;
-        const dx = Math.cos(angle) * distance;
-        const dy = Math.sin(angle) * distance;
-    
-        emoji.style.setProperty('--x', `${dx}px`);
-        emoji.style.setProperty('--y', `${dy}px`);
-    
-        document.body.appendChild(emoji);
-        setTimeout(() => emoji.remove(), 1500);
+        // Filter out weekends
+        const weekdaysOnly = data.filter(d => {
+          const day = new Date(d.timestamp * 1000).getDay();
+          return day !== 0 && day !== 6;
+        }).slice(-7); // Only last 7 weekdays
+
+        const labels = weekdaysOnly.map(d => {
+          const date = new Date(d.timestamp * 1000);
+          const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+          const monthDay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          return `${weekday} (${monthDay})`;
+        });
+
+        const scores = weekdaysOnly.map(d => +d.value);
+        const cls = weekdaysOnly.map(d => d.value_classification);
+
+        renderWeekdays(labels, cls, scores);
+        renderChart(labels, scores, cls);
+        showMoot(cls[cls.length-1], scores[scores.length-1]);
+        spawnEmojis(cls);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('tweetMood').innerText = "⚠️ Error loading mood";
       }
     }
-    
-    
 
-    // Show only Mon–Fri bars
-    for (let i = 1; i <= 5; i++) {
-      const mood = moods[i - 1];
-      const day = days[i];
-
-      const bar = document.createElement("div");
-      bar.className = "bar";
-      bar.style.height = `${mood.height}%`;
-      bar.setAttribute("data-day", i);
-      bar.innerHTML = `${day}<br><span>${mood.emoji}</span>`;
-
-      if (todayIndex === i) {
-        bar.classList.add("selected");
-        moodLabel.innerText = `${mood.label} Zone (Today - ${day})`;
-      }
-
-      bar.addEventListener('click', () => showMood(i));
-      graph.appendChild(bar);
+    function renderWeekdays(labels, cls, scores) {
+      const wd = document.getElementById('weekdays');
+      wd.innerHTML = '';
+      labels.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'day';
+        div.innerText = label.toUpperCase();
+        if (i === labels.length - 1) div.classList.add('today');
+        div.onclick = () => showPopup(label, cls[i], scores[i]);
+        wd.appendChild(div);
+      });
     }
+
+    function renderChart(labels, scores, cls) {
+      new Chart(document.getElementById('moodChart').getContext('2d'), {
+        type:'line',
+        data:{
+          labels,
+          datasets:[{
+            label:"Mood Score",
+            data:scores,
+            fill:true,
+            backgroundColor:'rgba(0,200,83,0.2)',
+            borderColor:'#00c853',
+            tension:0.4,
+            pointBackgroundColor:'#00e676',
+            pointBorderColor:'#00e676',
+            pointRadius:6
+          }]
+        },
+        options:{ responsive:true, plugins:{legend:{display:false}},
+          scales:{ y:{min:0,max:100,grid:{color:'#444'}}, x:{grid:{color:'#444'}} }
+        }
+      });
+    }
+
+    function showMoot(mood, score) {
+      const icon = moodIcons[mood] || "📊";
+      document.getElementById('tweetMood').innerText = `Today’s Mood: ${icon} ${mood} (${score})`;
+    }
+
+    function showPopup(day, mood, score) {
+      const popup = document.getElementById('popup');
+      const icon = moodIcons[mood] || "";
+      popup.innerText = `${icon} ${day}: ${mood} (${score}/100)`;
+      popup.style.display = 'block';
+      setTimeout(() => popup.style.display = 'none', 2600);
+    }
+
+    function spawnEmojis(cls) {
+      setInterval(() => {
+        const mood = cls[Math.floor(Math.random() * cls.length)];
+        const icon = moodIcons[mood] || "";
+        const el = document.createElement('div');
+        el.className = 'floating';
+        el.innerText = icon;
+        el.style.left = Math.random() * 90 + '%';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 6000);
+      }, 600); // faster and more frequent
+    }
+
+    init();
   </script>
-
 </body>
 </html>

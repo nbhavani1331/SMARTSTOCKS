@@ -1,51 +1,45 @@
+
+
+
+
+
+
 const express = require('express');
-const path = require('path'); // Add this if not present
-const {connectToDatabase} = require('./src/config/database');
+const path = require('path');
 const cors = require('cors');
-const {setRoutes} = require('./src/routes/app'); 
+const { connectToDatabase } = require('./src/config/database');
+const { setRoutes } = require('./src/routes/app');
 
+const app = express();
+// const PORT = 3000;
+const PORT = process.env.PORT || 4000;
 
-// const IndexController = require('./src/controllers/index');
+// Middleware
+app.use(require('express-status-monitor')()); // Optional: Monitor server stats
+app.use(cors());                              // Enable CORS
+app.use(express.json());                      // Parse JSON requests
+setRoutes(app);
 
-const app = express(); // ✅ Move this to the top
-const PORT = 3000;
-app.use(require('express-status-monitor')()); // ✅ Add status monitor
-app.use(cors()); // Enable CORS
-app.use(express.json());
-
-
-// ✅ Serve frontend files from "public" folder
+// Serve static files from the "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Default route for homepage
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html')); // ✅ Correct
-    });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-
-// // API routes -- need to uncomment
-// app.get('/stocks', (req, res) => IndexController.getStocks(req, res));
-// app.post('/stocks', (req, res) => IndexController.createStock(req, res));
-// // app.put('/buy', (req, res) => IndexController.buyStock(req, res))
-// app.put('/api/stocks/buy', IndexController.buyStock);   // ✅ updated
-// app.put('/api/stocks/sell', IndexController.sellStock)
-
+// Connect to DB and start the server
 connectToDatabase()
-    .then(() => {
-        console.log('Connected to the database.');
-        setRoutes(app);
-        
-        app.listen(PORT, () => {
-        console.log(`Server is running on port http://localhost:${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error('Database connection failed:', error);
+  .then(() => {
+    console.log('✅ Connected to the database.');
+    
+    // Set API routes
+    setRoutes(app);
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running at http://localhost:${PORT}`);
     });
-
-
-
-// Start server
-// app.listen(PORT, () => {
-//     console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
+  })
+  .catch((error) => {
+    console.error('❌ Database connection failed:', error);
+  });

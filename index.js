@@ -15,11 +15,13 @@ app.use(express.json());
 
 
 // ✅ Serve frontend files from "public" folder
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html')); // ✅ Correct
+    res.sendFile(path.join(__dirname, 'public', 'welcome.html')); // ✅ Correct
     });
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // // API routes -- need to uncomment

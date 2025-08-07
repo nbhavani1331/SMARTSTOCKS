@@ -2,29 +2,145 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>All Stocks</title>
+  <title>SMART STOCK – All Stocks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8fafc;
+      color: #111827;
+      animation: fadeIn 0.8s ease-in-out;
       transition: background-color 0.5s ease, color 0.5s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .stock-tag {
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .BUY {
+      background: #16a34a;
+    }
+
+    .SELL {
+      background: #dc2626;
+    }
+
     .dark-mode {
-      background-color: #1c1c1c;
+      background-color: #1e1e1e;
       color: #f0f0f0;
     }
-    .dark-mode table, .dark-mode th, .dark-mode td {
-      background-color: #2a2a2a;
-      color: #f0f0f0;
+
+    .dark-mode th {
+      background-color: #2c2c2c;
     }
+
+    .dark-mode td, .dark-mode th {
+      color: #f0f0f0;
+      border-color: #444;
+    }
+
     .dark-mode .table-container {
       background-color: #2a2a2a;
     }
+
     .dark-mode input,
-    .dark-mode select,
     .dark-mode button {
       background-color: #333;
       color: white;
       border-color: #555;
+    }
+
+    .total-value {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    /* Floating Button */
+    .floating-fetch {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      padding: 14px 22px;
+      border-radius: 50px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+      border: none;
+      font-size: 16px;
+      z-index: 1000;
+      animation: pulse 2s infinite;
+      cursor: pointer;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0px rgba(147, 51, 234, 0.4); }
+      70% { box-shadow: 0 0 20px rgba(147, 51, 234, 0); }
+      100% { box-shadow: 0 0 0px rgba(147, 51, 234, 0.4); }
+    }
+
+    /* Toggle */
+    .toggle-container {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .floating-fetch {
+        right: 20px;
+        bottom: 20px;
+        padding: 12px 16px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
@@ -35,8 +151,8 @@
 <body>
 
   <!-- 🌙 Dark Mode Toggle -->
-  <div style="text-align: right; padding: 10px 20px;">
-    <label style="font-weight: bold;" title="Toggle light/dark mode">
+  <div class="toggle-container">
+    <label title="Toggle dark mode">
       <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
       🌙 Dark Mode
     </label>
@@ -61,6 +177,13 @@
     </table>
   </div>
 
+  <div class="total-value">
+    💰 Total Invested Value: ₹<span id="total-value">0</span>
+  </div>
+
+  <!-- Floating Button -->
+  <button class="floating-fetch" onclick="location.reload()">🔁 Refresh Stocks</button>
+
   <script>
     // ✅ Fetch and display transaction log data
     fetch('http://localhost:4000/api/transactions/all') // <-- Update this to your correct API route
@@ -70,6 +193,9 @@
 
         data.forEach(txn => {
           const row = document.createElement('tr');
+
+          const typeClass = s.transaction_type === 'BUY' ? 'BUY' : 'SELL';
+
           row.innerHTML = `
             <td>${txn.transaction_id}</td>
             <td>${txn.stock_symbol}</td>
@@ -83,7 +209,7 @@
         });
       });
 
-    // ✅ Dark Mode Toggle
+    // Dark mode logic
     function toggleDarkMode() {
       const dark = document.body.classList.toggle("dark-mode");
       localStorage.setItem("dark-mode", dark);
@@ -100,5 +226,3 @@
 </body>
 
 </html>
-
-

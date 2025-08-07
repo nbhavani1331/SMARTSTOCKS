@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SMART STOCK | Watchlist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #1e88e5;
+    }
+
+    .watchlist-container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    form {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input, button {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #1e88e5;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f0f2f5;
+    }
+
+    .sentiment {
+      font-weight: 600;
+    }
+
+    .positive { color: green; }
+    .neutral { color: #999; }
+    .negative { color: red; }
+
+    .empty {
+      text-align: center;
+      color: #aaa;
+      padding: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>📌 Your Watchlist</h1>
+
+  <div class="watchlist-container">
+    <form id="watchlistForm">
+      <input type="text" id="symbolInput" placeholder="Stock Symbol (e.g., AAPL)" required />
+      <input type="text" id="companyInput" placeholder="Company Name" required />
+      <button type="submit">Add to Watchlist</button>
+    </form>
+
+    <div id="watchlistTable">
+      <p class="empty">No stocks in watchlist yet.</p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('watchlistForm');
+    const tableContainer = document.getElementById('watchlistTable');
+    let watchlist = [];
+
+    function getRandomPrice() {
+      return (Math.random() * 1000 + 100).toFixed(2);
+    }
+
+    function getRandomSentiment() {
+      const sentiments = ['Positive', 'Neutral', 'Negative'];
+      return sentiments[Math.floor(Math.random() * sentiments.length)];
+    }
+
+    function renderWatchlist() {
+      if (watchlist.length === 0) {
+        tableContainer.innerHTML = '<p class="empty">No stocks in watchlist yet.</p>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Company</th>
+              <th>Latest Price</th>
+              <th>Market Sentiment</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      watchlist.forEach(stock => {
+        const sentimentClass = stock.sentiment.toLowerCase();
+        html += `
+          <tr>
+            <td>${stock.symbol}</td>
+            <td>${stock.company}</td>
+            <td>₹${stock.price}</td>
+            <td class="sentiment ${sentimentClass}">${stock.sentiment}</td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      tableContainer.innerHTML = html;
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const symbol = document.getElementById('symbolInput').value.toUpperCase();
+      const company = document.getElementById('companyInput').value;
+
+      const newStock = {
+        symbol,
+        company,
+        price: getRandomPrice(),
+        sentiment: getRandomSentiment()
+      };
+
+      watchlist.push(newStock);
+      renderWatchlist();
+      form.reset();
+    });
+
+    // Optional: Preload dummy data
+    // watchlist.push({ symbol: "TSLA", company: "Tesla Inc", price: "840.12", sentiment: "Positive" });
+    // renderWatchlist();
+  </script>
+</body>
+</html>

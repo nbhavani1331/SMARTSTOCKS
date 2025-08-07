@@ -7,7 +7,7 @@
 </head>
 <body>
 
-  <!-- ✅ Marquee -->
+  <!-- ✅ Marquee
   <div id="marquee">
     <marquee behavior="scroll" direction="left">
       📈 Welcome to SMARTSTOCK – Where Markets Meet Simplicity! 
@@ -17,15 +17,61 @@
       🔔 Stay Alert. Stay Informed. Stay Bullish.
       📈 Discover Trends, Track Trades & Own the Market.
     </marquee>
-  </div>
+  </div> -->
 
-  <!-- ✅ Dark Mode Toggle -->
-  <div style="display: flex; justify-content: flex-end; padding: 12px 20px;">
-    <label style="font-weight: bold; font-size: 16px; color: inherit;">
-      <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
-      🌙 Dark Mode
-    </label>
+
+  <div id="marquee" style="overflow: hidden; white-space: nowrap; width: 100%; font-weight: bold; background: #9c6a9e; color: #4b5563; padding: 10px 0;">
+    <div id="typewriter-text" style="display: inline-block;"></div>
   </div>
+  
+  <script>
+    const lines = [
+      "📈 Welcome to SMARTSTOCK – Where Markets Meet Simplicity!",
+      "💹 Add, View & Track Your Stocks Like a Pro!",
+      "📊 Live Market Mood Index Now Integrated!",
+      "💼 Invest Smart. Stay Ahead. Monitor Everything.",
+      "🔔 Stay Alert. Stay Informed. Stay Bullish.",
+      "📈 Discover Trends, Track Trades & Own the Market."
+    ];
+  
+    let currentLine = 0;
+    let currentChar = 0;
+    const typewriter = document.getElementById('typewriter-text');
+  
+    function type() {
+      if (currentChar < lines[currentLine].length) {
+        typewriter.innerHTML += lines[currentLine].charAt(currentChar);
+        currentChar++;
+        setTimeout(type, 60);
+      } else {
+        setTimeout(() => {
+          currentChar = 0;
+          currentLine = (currentLine + 1) % lines.length;
+          typewriter.innerHTML = '';
+          setTimeout(type, 500);
+        }, 2500);
+      }
+    }
+  
+    type();
+  </script>
+  
+
+ <!--Profile -->
+ <div class="profile-menu">
+  <div class="profile-circle" onclick="toggleMenu()">👤</div>
+  <div id="dropdown" class="dropdown-menu">
+    <a href="portfolio-summary.html">📊 Portfolio Summary</a>
+    <!-- Optional:-->
+    <a href="#">⚙️ Settings</a>
+    <a href="#">🚪 Logout</a>
+    
+  </div>
+</div>
+
+
+
+
 
   <!-- ✅ Title -->
   <h1>📋 SMART STOCK</h1>
@@ -334,6 +380,27 @@
     suggestionBox.style.display = open ? 'none' : 'flex';
     chatInput.style.display = open ? 'none' : 'block';
   });
+
+
+  //profile
+  function toggleMenu() {
+    const menu = document.getElementById('dropdown');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+  
+  // Optional: Close dropdown when clicking outside
+  window.addEventListener('click', function(e) {
+    if (!e.target.matches('.profile-circle')) {
+      const dropdown = document.getElementById('dropdown');
+      if (dropdown && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+      }
+    }
+  });
+  
+  
+  
+
 </script>
 
 </body>

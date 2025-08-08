@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,14 +6,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f4ff;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
+      background: #0f0f1a;
+      color: #f0f0f0;
     }
 
     nav {
-      background-color: #7f1ea8;
+      background: linear-gradient(to right, #6a00ff, #bb00ff);
       padding: 15px 30px;
       display: flex;
       justify-content: space-between;
@@ -24,11 +24,11 @@
 
     .nav-left {
       font-weight: bold;
-      font-size: 18px;
+      font-size: 20px;
     }
 
     .nav-right a {
-      color: white;
+      color: #fff;
       text-decoration: none;
       font-weight: bold;
       padding: 8px 15px;
@@ -38,13 +38,28 @@
     }
 
     .nav-right a:hover {
-      background-color: #7B5EFF;
+      background-color: rgba(255, 255, 255, 0.2);
     }
 
     h1 {
       text-align: center;
-      color: #4B0082;
-      margin-top: 20px;
+      font-size: 2.5rem;
+      margin: 30px 0;
+      background: linear-gradient(to right, #00f0ff, #ff00ff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 5px #00f0ff;
+      }
+      to {
+        text-shadow: 0 0 20px #ff00ff;
+      }
     }
 
     .chart-container {
@@ -56,10 +71,11 @@
     }
 
     .chart-box {
-      background: white;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #2a2a40;
       padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
       width: 400px;
       height: 400px;
       cursor: pointer;
@@ -70,7 +86,6 @@
       height: 100% !important;
     }
 
-    /* Modal for chart zoom */
     .modal {
       display: none;
       position: fixed;
@@ -79,17 +94,18 @@
       top: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
       align-items: center;
       justify-content: center;
     }
 
     .modal-content {
-      background: white;
+      background: #1e1e2f;
       padding: 20px;
       border-radius: 15px;
       max-width: 80vw;
       max-height: 80vh;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
     }
 
     .modal canvas {
@@ -110,7 +126,7 @@
 <body>
 
   <nav>
-    <div class="nav-left">Analysis</div>
+    <div class="nav-left">📈 SMARTSTOCKS Analysis</div>
     <div class="nav-right">
       <a href="index.html">Home</a>
       <a href="user_stocks.html">View Stocks</a>
@@ -119,7 +135,7 @@
     </div>
   </nav>
 
-  <h1>📊 SMARTSTOCKS Live Analysis</h1>
+  <h1>📊 Live Stock Insights</h1>
 
   <div class="chart-container">
     <div class="chart-box" onclick="openModal('sectorChartModal')">
@@ -130,7 +146,7 @@
     </div>
   </div>
 
-  <!-- Modal Containers -->
+  <!-- Modals -->
   <div id="sectorChartModal" class="modal">
     <div class="close-btn" onclick="closeModal('sectorChartModal')">&times;</div>
     <div class="modal-content">
@@ -149,7 +165,13 @@
     const sectorAPI = 'http://localhost:4000/api/stocks/';
     const transactionAPI = 'http://localhost:4000/api/transactions/all';
 
-    // Sector Chart
+    let sectorData, transactionData;
+    let sectorChartLargeInstance, transactionChartLargeInstance;
+
+    // Neon-themed colors
+    const neonColors = ['#00ffff', '#ff00ff', '#00ff99', '#ff3399', '#ffcc00', '#3399ff'];
+
+    // Fetch and render sector chart
     fetch(sectorAPI)
       .then(res => res.json())
       .then(data => {
@@ -161,6 +183,7 @@
 
         const labels = Object.keys(sectorCount);
         const values = Object.values(sectorCount);
+        sectorData = { labels, values };
 
         const config = {
           type: 'pie',
@@ -168,24 +191,29 @@
             labels,
             datasets: [{
               data: values,
-              backgroundColor: ['#9C27B0', '#7B1FA2', '#6A1B9A', '#4A148C', '#AB47BC', '#CE93D8']
+              backgroundColor: neonColors
             }]
           },
           options: {
             plugins: {
               title: {
                 display: true,
-                text: 'Stocks by Sector'
+                text: 'Stocks by Sector',
+                color: '#fff'
+              },
+              legend: {
+                labels: {
+                  color: '#ccc'
+                }
               }
             }
           }
         };
 
         new Chart(document.getElementById('sectorChart'), config);
-        new Chart(document.getElementById('sectorChartLarge'), config);
       });
 
-    // Transaction Chart
+    // Fetch and render transaction chart
     fetch(transactionAPI)
       .then(res => res.json())
       .then(data => {
@@ -199,6 +227,7 @@
 
         const labels = Object.keys(transactionCount);
         const values = Object.values(transactionCount);
+        transactionData = { labels, values };
 
         const config = {
           type: 'doughnut',
@@ -206,33 +235,84 @@
             labels,
             datasets: [{
               data: values,
-              backgroundColor: ['#8E24AA', '#BA68C8']
+              backgroundColor: ['#00ffcc', '#ff3399']
             }]
           },
           options: {
             plugins: {
               title: {
                 display: true,
-                text: 'Transaction Type Distribution'
+                text: 'Transaction Type Distribution',
+                color: '#fff'
+              },
+              legend: {
+                labels: {
+                  color: '#ccc'
+                }
               }
             }
           }
         };
 
         new Chart(document.getElementById('transactionTypeChart'), config);
-        new Chart(document.getElementById('transactionChartLarge'), config);
       });
 
-    // Modal Handling
     function openModal(id) {
       document.getElementById(id).style.display = 'flex';
+
+      // Dynamically re-render chart in modal
+      if (id === 'sectorChartModal') {
+        if (sectorChartLargeInstance) sectorChartLargeInstance.destroy();
+        sectorChartLargeInstance = new Chart(
+          document.getElementById('sectorChartLarge'),
+          {
+            type: 'pie',
+            data: {
+              labels: sectorData.labels,
+              datasets: [{
+                data: sectorData.values,
+                backgroundColor: neonColors
+              }]
+            },
+            options: {
+              plugins: {
+                title: { display: true, text: 'Sectors (Full View)', color: '#fff' },
+                legend: { labels: { color: '#ccc' } }
+              }
+            }
+          }
+        );
+      }
+
+      if (id === 'transactionChartModal') {
+        if (transactionChartLargeInstance) transactionChartLargeInstance.destroy();
+        transactionChartLargeInstance = new Chart(
+          document.getElementById('transactionChartLarge'),
+          {
+            type: 'doughnut',
+            data: {
+              labels: transactionData.labels,
+              datasets: [{
+                data: transactionData.values,
+                backgroundColor: ['#00ffcc', '#ff3399']
+              }]
+            },
+            options: {
+              plugins: {
+                title: { display: true, text: 'Transactions (Full View)', color: '#fff' },
+                legend: { labels: { color: '#ccc' } }
+              }
+            }
+          }
+        );
+      }
     }
 
     function closeModal(id) {
       document.getElementById(id).style.display = 'none';
     }
 
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       const modals = document.querySelectorAll(".modal");
       modals.forEach(modal => {
         if (event.target === modal) {

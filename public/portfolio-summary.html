@@ -8,12 +8,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #1e88e5;
-      --success: #43a047;
-      --danger: #e53935;
-      --neutral: #6c757d;
-      --bg: #f0f2f5;
-      --card: #ffffff;
+      --primary: #00fff0;
+      --success: #00ff88;
+      --danger: #ff2d75;
+      --neutral: #999;
+      --bg: #0a0f1e;
+      --card: #111827;
     }
 
     body {
@@ -21,13 +21,26 @@
       margin: 0;
       padding: 2rem;
       background-color: var(--bg);
-      color: #333;
+      color: #e5e5e5;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: var(--primary);
+    .gradient-title {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #00fff0, #8a2be2);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      animation: glow 2s infinite alternate;
+    }
+    
+    
+    
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00fff066; }
+      to { text-shadow: 0 0 20px #00fff0cc; }
     }
 
     .dashboard {
@@ -44,7 +57,9 @@
       padding: 0.5rem 1rem;
       border-radius: 6px;
       font-size: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid #444;
+      background-color: #1f2937;
+      color: #e5e5e5;
     }
 
     .cards {
@@ -57,12 +72,13 @@
       background-color: var(--card);
       padding: 1.5rem;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.08);
       transition: transform 0.3s ease;
     }
 
     .card:hover {
       transform: translateY(-5px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
     }
 
     .label {
@@ -90,21 +106,41 @@
     .footer {
       text-align: center;
       margin-top: 3rem;
-      color: #999;
+      color: #666;
       font-size: 0.9rem;
     }
 
     .chart-container {
       margin-top: 2rem;
-      background: white;
+      background: var(--card);
       padding: 1rem;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.05);
     }
 
     canvas {
       width: 100% !important;
       height: 400px !important;
+    }
+
+    .home-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, #00fff0, #8a2be2);
+      border: none;
+      padding: 12px 18px;
+      color: white;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00fff066;
+      transition: all 0.3s ease;
+    }
+
+    .home-button:hover {
+      box-shadow: 0 0 20px #00fff0aa;
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -137,8 +173,8 @@
         <div class="value primary" id="totalQuantity">0</div>
       </div>
       <div class="card">
-        <div class="label">Unique Stock Symbols</div>
-        <div class="value" id="totalStocks">0</div>
+        <div class="label">Net Profit / Loss</div>
+        <div class="value" id="netProfitLoss">₹0</div>
       </div>
     </div>
 
@@ -149,13 +185,15 @@
     <div class="footer">SMART STOCK &copy; 2025</div>
   </div>
 
+  <!-- Home Button -->
+  <a href="index.html" class="home-button">🏠 Back to Home</a>
+
   <script>
-    let chart; // chart instance
+    let chart;
     const formatCurrency = val => `₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
     async function fetchDataAndRender(filterDays = 'all') {
       try {
-        //const res = await fetch('http://localhost:3000/api/stocks');
         const res = await fetch('http://localhost:4000/api/transactions/all');
         const stocks = await res.json();
 
@@ -179,13 +217,12 @@
         let totalSell = 0;
         let totalQty = 0;
         const uniqueSymbols = new Set();
-
         const buyByDate = {};
         const sellByDate = {};
 
         filteredStocks.forEach(stock => {
           const amount = stock.quantity * stock.price_per_unit;
-          const dateKey = new Date(stock.transaction_date).toISOString().split('T')[0]; // YYYY-MM-DD
+          const dateKey = new Date(stock.transaction_date).toISOString().split('T')[0];
           const type = stock.transaction_type?.toUpperCase();
 
           if (type === 'BUY') {
@@ -201,19 +238,19 @@
           uniqueSymbols.add(stock.stock_symbol);
         });
 
-        // Update UI cards
         document.getElementById('totalInvestment').textContent = formatCurrency(totalBuy);
         document.getElementById('totalReturns').textContent = formatCurrency(totalSell);
         document.getElementById('totalQuantity').textContent = totalQty;
-        document.getElementById('totalStocks').textContent = uniqueSymbols.size;
+        const profitLoss = totalSell - totalBuy;
+        const profitLossElem = document.getElementById('netProfitLoss');
+        profitLossElem.textContent = formatCurrency(profitLoss);
+        profitLossElem.className = 'value ' + (profitLoss >= 0 ? 'success' : 'danger');
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('portfolioCards').style.display = 'grid';
         document.getElementById('chartWrapper').style.display = 'block';
 
-        // Chart
         const labels = Array.from(new Set([...Object.keys(buyByDate), ...Object.keys(sellByDate)])).sort();
-
         const buyData = labels.map(date => buyByDate[date] || 0);
         const sellData = labels.map(date => sellByDate[date] || 0);
 
@@ -223,20 +260,19 @@
             {
               label: 'Investment (BUY)',
               data: buyData,
-              backgroundColor: 'rgba(67, 160, 71, 0.6)',
+              backgroundColor: 'rgba(0,255,150,0.6)',
               borderRadius: 5
             },
             {
               label: 'Returns (SELL)',
               data: sellData,
-              backgroundColor: 'rgba(229, 57, 53, 0.6)',
+              backgroundColor: 'rgba(255,50,120,0.6)',
               borderRadius: 5
             }
           ]
         };
 
         const ctx = document.getElementById('investmentChart').getContext('2d');
-
         if (chart) chart.destroy();
         chart = new Chart(ctx, {
           type: 'bar',
@@ -244,13 +280,8 @@
           options: {
             responsive: true,
             plugins: {
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                text: 'Investment vs Returns Over Time'
-              }
+              legend: { position: 'top' },
+              title: { display: true, text: 'Investment vs Returns Over Time' }
             }
           }
         });
@@ -263,7 +294,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       fetchDataAndRender();
-
       document.getElementById('dateFilter').addEventListener('change', (e) => {
         document.getElementById('loading').textContent = 'Updating...';
         document.getElementById('loading').style.display = 'block';

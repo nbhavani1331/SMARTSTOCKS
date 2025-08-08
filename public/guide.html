@@ -1,181 +1,27 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Beginner's Guide to Stocks</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      background: linear-gradient(to right, #e0bbff, #f3e8ff);
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      color: #333;
-    }
-
-    .guide-header {
-      background: linear-gradient(to right, #a855f7, #7e22ce);
-      color: white;
-      padding: 40px 20px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .guide-header h1 {
-      font-size: 40px;
-      margin: 0;
-    }
-
-    .guide-header p {
-      font-size: 18px;
-      margin-top: 10px;
-      font-style: italic;
-    }
-
-    .guide-container {
-      max-width: 1000px;
-      margin: 30px auto;
-      padding: 30px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-    }
-
-    h2 {
-      color: #7a1fa2;
-      margin-top: 30px;
-      margin-bottom: 10px;
-    }
-
-    p, ul {
-      font-size: 17px;
-      line-height: 1.8;
-    }
-
-    ul {
-      padding-left: 25px;
-    }
-
-    ul li::before {
-      content: '👉';
-      margin-right: 8px;
-    }
-
-    .back-home {
-      display: inline-block;
-      margin-top: 40px;
-      font-size: 18px;
-      color: #a64dff;
-      font-weight: bold;
-      text-decoration: none;
-      border: 2px solid #a64dff;
-      padding: 10px 20px;
-      border-radius: 8px;
-      transition: 0.3s ease;
-    }
-
-    .back-home:hover {
-      background: #a64dff;
-      color: white;
-    }
-
-    @media (max-width: 768px) {
-      .guide-container {
-        padding: 20px;
-        margin: 20px;
-      }
-
-      .guide-header h1 {
-        font-size: 28px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-    <div class="guide-header">
-        <h1>📘 Beginner's Guide to Stocks</h1>
-        <p>Learn the basics of investing and how to use your stock portfolio</p>
-      </div>
-      
-      <div class="guide-container">
-        <h2>📌 What is a Stock?</h2>
-        <p>A stock represents ownership in a company. By buying stocks, you become a partial owner and can benefit from the company’s success.</p>
-      
-        <h2>💸 Why Should You Invest?</h2>
-        <p>Investing allows your money to grow over time by earning returns. Stock markets historically provide better long-term returns than savings accounts.</p>
-      
-        <h2>📁 What is a Portfolio?</h2>
-        <p>A portfolio is your collection of stocks and investments. This app helps you manage and track your personal stock portfolio.</p>
-      
-        <h2>🧭 How to Use This App?</h2>
-        <ul>
-          <li>Add stocks with details like name, price, quantity, and date.</li>
-          <li>View your stock portfolio anytime.</li>
-          <li>Edit or delete your stocks easily.</li>
-          <li>Track overall market sentiment through the Market Mood Index.</li>
-        </ul>
-      
-        <h2>📊 Types of Stocks</h2>
-        <ul>
-          <li><strong>Common Stocks:</strong> Most typical type, includes voting rights.</li>
-          <li><strong>Preferred Stocks:</strong> Fixed dividends, no voting rights, more stable.</li>
-          <li><strong>Growth Stocks:</strong> Fast-growing companies with reinvested profits.</li>
-          <li><strong>Dividend Stocks:</strong> Regularly pay a portion of profits to shareholders.</li>
-        </ul>
-      
-        <h2>⚠️ Risks to Consider</h2>
-        <ul>
-          <li>Markets are volatile — prices can fluctuate daily.</li>
-          <li>Diversify your investments to reduce risk.</li>
-          <li>Never invest money you can't afford to lose.</li>
-        </ul>
-      
-        <h2>❓ Frequently Asked Questions</h2>
-        <ul>
-          <li><strong>Q:</strong> Is investing risky?<br><strong>A:</strong> All investments carry risk, but smart planning helps reduce it.</li>
-          <li><strong>Q:</strong> How do I pick a good stock?<br><strong>A:</strong> Research the company, its financials, and industry trends.</li>
-          <li><strong>Q:</strong> How often should I update my portfolio?<br><strong>A:</strong> Review it monthly or after major market changes.</li>
-        </ul>
-      
-        <a class="back-home" href="index.html">← Back to Home</a>
-      </div>
-      
-
-</body>
-</html>
- -->
-
-
-
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Beginner's Guide - SMART STOCK</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    :root {
-      --primary: #a855f7;
-      --secondary: #c084fc;
-      --bg: #f4f4f9;
-      --text: #2e2e2e;
-      --card-bg: #ffffff;
-      --accent: #8b5cf6;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
 
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      background: #0d0d0d;
+      color: #f0f0f0;
+      overflow-x: hidden;
     }
 
     .container {
       max-width: 960px;
       margin: auto;
       padding: 40px 20px;
+      position: relative;
+      z-index: 2;
     }
 
     header {
@@ -185,46 +31,59 @@
 
     header h1 {
       font-size: 2.6rem;
-      background: linear-gradient(to right, var(--primary), var(--secondary));
+      background: linear-gradient(to right, #00ffff, #8a2be2);
       -webkit-background-clip: text;
+      background-clip: text; /* for completeness */
       -webkit-text-fill-color: transparent;
+      color: transparent;
       font-weight: bold;
+      animation: glow 2s infinite alternate;
+    }
+    header p {
+      font-size: 1rem;
+      color: #ccc;
     }
 
     .card {
-      background: var(--card-bg);
+      background: rgba(255, 255, 255, 0.05);
       padding: 30px;
       margin: 20px 0;
       border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
-      transition: transform 0.3s;
+      box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
     }
 
     .card:hover {
       transform: scale(1.01);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
     }
 
     .card h2 {
-      color: var(--accent);
+      color: #00ffff;
       margin-bottom: 15px;
-    }
-
-    .tip {
-      background: linear-gradient(to right, #ede9fe, #f3e8ff);
-      padding: 20px;
-      border-left: 5px solid var(--primary);
-      border-radius: 10px;
-      font-weight: 500;
-      margin: 30px 0;
     }
 
     ul, ol {
       padding-left: 20px;
     }
 
+    li {
+      margin-bottom: 8px;
+    }
+
+    .tip {
+      background: rgba(0, 255, 255, 0.1);
+      padding: 20px;
+      border-left: 4px solid #8a2be2;
+      border-radius: 10px;
+      font-weight: 500;
+      margin: 30px 0;
+      color: #e0e0e0;
+    }
+
     a {
       text-decoration: none;
-      color: var(--accent);
+      color: #00ffff;
       font-weight: bold;
     }
 
@@ -234,16 +93,38 @@
     }
 
     .back-home a {
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      color: white;
+      background: linear-gradient(to right, #00ffff, #8a2be2);
+      color: black;
       padding: 12px 24px;
       border-radius: 8px;
       display: inline-block;
-      transition: background 0.3s;
+      font-weight: bold;
+      box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+      transition: 0.3s ease;
     }
 
     .back-home a:hover {
-      background: linear-gradient(to right, #7c3aed, #a855f7);
+      background: linear-gradient(to right, #8a2be2, #00ffff);
+      color: white;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #00ffff, 0 0 20px #8a2be2;
+      }
+      to {
+        text-shadow: 0 0 20px #8a2be2, 0 0 30px #00ffff;
+      }
+    }
+
+    /* Particles Background */
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      top: 0;
+      left: 0;
     }
 
     @media (max-width: 600px) {
@@ -258,72 +139,96 @@
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <h1>📘 Beginner's Guide to the Stock Market</h1>
-      <p>Welcome to <strong>SMART STOCK</strong> – Where Investing Begins with Clarity!</p>
-    </header>
+<div id="particles-js"></div>
 
-    <div class="card">
-      <h2>🔹 What is a Stock?</h2>
-      <p>A <strong>stock</strong> represents a small piece of ownership in a company. When you buy one, you're buying a slice of that business and its future potential.</p>
-    </div>
+<div class="container">
+  <header>
+    <h1>📘 Beginner's Guide to the Stock Market</h1>
+    <p>Welcome to <strong>SMART STOCK</strong> – Where Investing Begins with Clarity!</p>
+  </header>
 
-    <div class="card">
-      <h2>🔹 Why Do Companies Sell Stocks?</h2>
-      <p>To grow! Companies raise money by selling shares to investors who believe in their vision. You become part of their story.</p>
-    </div>
-
-    <div class="card">
-      <h2>🔹 How Do You Make Money?</h2>
-      <ul>
-        <li><strong>Capital Gains:</strong> Buy low, sell high!</li>
-        <li><strong>Dividends:</strong> Some companies share profits with shareholders.</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>🔹 What is a Portfolio?</h2>
-      <p>Your <strong>portfolio</strong> is your personal collection of investments. In SMART STOCK, you can easily track and manage all your stocks from one place.</p>
-    </div>
-
-    <div class="card">
-      <h2>🔹 Market Mood Explained</h2>
-      <p>Market mood reflects the emotional state of investors. Are they feeling <strong>greedy</strong>? Or fearful? Use this tool to time your moves smartly.</p>
-    </div>
-
-    <div class="card">
-      <h2>🔹 BUY vs SELL</h2>
-      <ul>
-        <li><strong>BUY:</strong> You're investing in a stock you believe will grow.</li>
-        <li><strong>SELL:</strong> You're cashing out — hopefully for a gain!</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>🔹 Using SMART STOCK</h2>
-      <ol>
-        <li>Fill in the <strong>Add Stock</strong> form with details of your trade.</li>
-        <li>View your full stock list with <strong>Fetch Data</strong>.</li>
-        <li>Monitor your <strong>Portfolio Summary</strong> to understand your position.</li>
-        <li>Check <strong>Analysis</strong> for charts, insights, and trends.</li>
-      </ol>
-    </div>
-
-    <div class="tip">
-      🧠 <strong>Pro Tip:</strong> Start small. Learn consistently. Don't chase trends blindly. Use your portfolio as a learning playground.
-    </div>
-
-    <div class="card">
-      <h2>🔹 Final Thoughts</h2>
-      <p>The stock market is not a game of luck. It’s a journey of learning, patience, and growth. SMART STOCK is here to walk beside you every step of the way.</p>
-    
-    </div>
-
-    <div class="back-home">
-      <a href="index.html">← Back to SMART STOCK</a>
-    </div>
+  <div class="card">
+    <h2>🔹 What is a Stock?</h2>
+    <p>A <strong>stock</strong> represents a small piece of ownership in a company. When you buy one, you're buying a slice of that business and its future potential.</p>
   </div>
+
+  <div class="card">
+    <h2>🔹 Why Do Companies Sell Stocks?</h2>
+    <p>To grow! Companies raise money by selling shares to investors who believe in their vision. You become part of their story.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔹 How Do You Make Money?</h2>
+    <ul>
+      <li><strong>Capital Gains:</strong> Buy low, sell high!</li>
+      <li><strong>Dividends:</strong> Some companies share profits with shareholders.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🔹 What is a Portfolio?</h2>
+    <p>Your <strong>portfolio</strong> is your personal collection of investments. In SMART STOCK, you can easily track and manage all your stocks from one place.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔹 Market Mood Explained</h2>
+    <p>Market mood reflects the emotional state of investors. Are they feeling <strong>greedy</strong>? Or fearful? Use this tool to time your moves smartly.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔹 BUY vs SELL</h2>
+    <ul>
+      <li><strong>BUY:</strong> You're investing in a stock you believe will grow.</li>
+      <li><strong>SELL:</strong> You're cashing out — hopefully for a gain!</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🔹 Using SMART STOCK</h2>
+    <ol>
+      <li>Fill in the <strong>Add Stock</strong> form with details of your trade.</li>
+      <li>View your full stock list with <strong>Fetch Data</strong>.</li>
+      <li>Monitor your <strong>Portfolio Summary</strong> to understand your position.</li>
+      <li>Check <strong>Analysis</strong> for charts, insights, and trends.</li>
+    </ol>
+  </div>
+
+  <div class="tip">
+    🧠 <strong>Pro Tip:</strong> Start small. Learn consistently. Don't chase trends blindly. Use your portfolio as a learning playground.
+  </div>
+
+  <div class="card">
+    <h2>🔹 Final Thoughts</h2>
+    <p>The stock market is not a game of luck. It’s a journey of learning, patience, and growth. SMART STOCK is here to walk beside you every step of the way.</p>
+  </div>
+
+  <div class="back-home">
+    <a href="index.html">← Back to SMART STOCK</a>
+  </div>
+</div>
+
+<!-- Particles.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script>
+  particlesJS("particles-js", {
+    particles: {
+      number: { value: 80, density: { enable: true, value_area: 800 }},
+      color: { value: "#00ffff" },
+      shape: { type: "circle" },
+      opacity: { value: 0.5 },
+      size: { value: 3 },
+      move: { enable: true, speed: 2 }
+    },
+    interactivity: {
+      events: {
+        onhover: { enable: true, mode: "repulse" }
+      },
+      modes: {
+        repulse: { distance: 100, duration: 0.4 }
+      }
+    }
+  });
+</script>
 
 </body>
 </html>

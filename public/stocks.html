@@ -9,8 +9,8 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background: #f8fafc;
-      color: #111827;
+      background: #0e0e0e;
+      color: #f0f0f0;
       transition: background-color 0.4s, color 0.4s;
     }
 
@@ -18,15 +18,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #6d28d9;
-      color: white;
+      background: #111827;
+      color: #00f0ff;
       padding: 12px 24px;
+      box-shadow: 0 0 20px #3b82f6;
     }
 
     .navbar .title {
       font-weight: 800;
       font-size: 20px;
       letter-spacing: 0.5px;
+      color: #a78bfa;
     }
 
     .navbar .links {
@@ -37,14 +39,14 @@
 
     .navbar .links a {
       text-decoration: none;
-      color: white;
+      color: #93c5fd;
       font-weight: 500;
       font-size: 14px;
-      transition: opacity 0.3s;
+      transition: color 0.3s;
     }
 
     .navbar .links a:hover {
-      opacity: 0.8;
+      color: #60a5fa;
     }
 
     .navbar .toggle {
@@ -57,14 +59,16 @@
       text-align: center;
       font-size: 2rem;
       margin: 20px 0;
+      color: #60a5fa;
+      text-shadow: 0 0 6px #3b82f6;
     }
 
     .table-container {
-      background: rgba(255, 255, 255, 0.95);
+      background: #1a1a1a;
       margin: 20px;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
       overflow-x: auto;
     }
 
@@ -72,34 +76,36 @@
       width: 100%;
       border-collapse: collapse;
       min-width: 900px;
+      color: #e5e7eb;
     }
 
     th, td {
       padding: 12px 15px;
       text-align: center;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid #374151;
     }
 
     th {
-      background-color: #ede9fe;
+      background-color: #1f2937;
+      color: #93c5fd;
       font-weight: 600;
     }
 
     tr:nth-child(even) {
-      background-color: #f3f4f6;
+      background-color: #111827;
     }
 
     tr:nth-child(odd) {
-      background-color: #fff;
+      background-color: #0f172a;
     }
 
     .BUY {
-      color: green;
+      color: #10b981;
       font-weight: bold;
     }
 
     .SELL {
-      color: red;
+      color: #ef4444;
       font-weight: bold;
     }
 
@@ -107,51 +113,21 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      padding: 8px 12px;
-      background: #7c3aed;
+      padding: 10px 16px;
+      background: #3b82f6;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 50px;
       font-size: 14px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 0 10px #3b82f6;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
 
-    /* Dark Mode */
-    .dark-mode {
-      background-color: #1e1e1e;
-      color: #f0f0f0;
-    }
-
-    .dark-mode .table-container {
-      background-color: #2a2a2a;
-    }
-
-    .dark-mode th {
-      background-color: #3f3f46;
-      color: white;
-    }
-
-    .dark-mode tr:nth-child(even) {
-      background-color: #262626;
-    }
-
-    .dark-mode tr:nth-child(odd) {
-      background-color: #1f1f1f;
-    }
-
-    .dark-mode .navbar {
-      background-color: #4c1d95;
-    }
-
-    .dark-mode .navbar .links a {
-      color: #e5e5ff;
-    }
-
-    .dark-mode .refresh-button {
-      background: #a78bfa;
-      color: #1e1e1e;
+    .refresh-button:hover {
+      background: #2563eb;
+      transform: scale(1.05);
     }
 
     @media (max-width: 768px) {
@@ -167,6 +143,10 @@
 
       h1 {
         font-size: 1.5rem;
+      }
+
+      table {
+        font-size: 13px;
       }
     }
   </style>
@@ -217,20 +197,25 @@
         const tbody = document.getElementById('transaction-body');
         data.forEach(txn => {
           const row = document.createElement('tr');
-
-
           const typeClass = txn.transaction_type === 'BUY' ? 'BUY' : 'SELL';
 
-
+          const utcDate = new Date(txn.transaction_date);
+          const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000)); // IST offset
+          const formattedDate = istDate.toLocaleString('en-IN', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour12: true
+          });
 
           row.innerHTML = `
             <td>${txn.transaction_id}</td>
             <td>${txn.stock_symbol}</td>
-            <td class="${txn.transaction_type}">${txn.transaction_type}</td>
+            <td class="${typeClass}">${txn.transaction_type}</td>
             <td>${txn.quantity}</td>
-            <td>${txn.price_per_unit}</td>
-            <td>${txn.total_value}</td>
-            <td>${txn.transaction_date}</td>
+            <td>&#8377;${txn.price_per_unit}</td>
+            <td>&#8377;${txn.total_value}</td>
+            <td>${formattedDate}</td>
           `;
           tbody.appendChild(row);
         });
